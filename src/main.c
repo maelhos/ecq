@@ -2,11 +2,12 @@
 #include <flint/fmpz.h>
 #include <flint/fmpz_factor.h>
 #include <flint/fmpz_vec.h>
+
 #include "EC.h"
 #include "two_descent.h"
+#include "tqf.h"
 
-
-int main(int argc, char* argv[])
+int main_descent(int argc, char* argv[])
 {
     ulong i, j;
 
@@ -87,4 +88,75 @@ int main(int argc, char* argv[])
     flint_printf("}\n");
 
     return 0;
+}
+
+int main_tqf(int argc, char* argv[])
+{
+    fmpz_t a, b, c;
+    fmpz_t x, y, z;
+    fmpz_factor_t af, bf, cf;
+
+    fmpz_tqf_t TBF, TBF_r;
+    fmpz_t tr[3];
+
+    int err;
+
+    // parameters for ax^2 + by^2 + cz^2 = 0
+    fmpz_init_set_si(a, 7561);
+    fmpz_init_set_si(b, 5 * 1181);
+    fmpz_init_set_si(c, -1 * 2 * 2477);
+
+    fmpz_init(x);
+    fmpz_init(y);
+    fmpz_init(z);
+
+    // factor coeffs
+    fmpz_factor_init(af);
+    fmpz_factor_init(bf);
+    fmpz_factor_init(cf);
+
+    fmpz_factor(af, a);
+    fmpz_factor(bf, b);
+    fmpz_factor(cf, c);
+
+    // init qbf
+    fmpz_tqf_init_set(TBF, af, bf, cf);
+    fmpz_tqf_init(TBF_r);
+
+    fmpz_init(tr[0]); fmpz_init(tr[1]); fmpz_init(tr[2]);
+    fmpz_tqf_print(TBF); flint_printf("\n");
+
+    // reduce qbf
+    fmpz_tqf_reduce(TBF_r, TBF, tr);
+
+    // print reduction and translation
+    fmpz_tqf_print(TBF_r); flint_printf("\n");
+    flint_printf("tr = "); 
+    fmpz_print(tr[0]); flint_printf(" "); 
+    fmpz_print(tr[1]); flint_printf(" ");
+    fmpz_print(tr[2]); flint_printf("\n");
+    
+    // solving qbf
+    err = fmpz_tqf_solve_reduced(TBF_r, x, y, z);
+    
+    // print solution
+    if (err == 1)
+    {
+        flint_printf("Found solution : (");
+        fmpz_print(x); flint_printf(", ");
+        fmpz_print(y); flint_printf(", ");
+        fmpz_print(z); flint_printf(")\n");
+    }
+    else
+    {
+        flint_printf("No solution exist\n");
+    }
+
+    return 0;
+}
+
+
+int main(int argc, char* argv[])
+{
+    return main_tqf(argc, argv);
 }

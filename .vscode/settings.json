@@ -14,6 +14,15 @@
         "bitset": "cpp",
         "fmpz.h": "c",
         "charconv": "c",
-        "fmpz_vec.h": "c"
-    }
+        "fmpz_vec.h": "c",
+        "ec.h": "c",
+        "random": "c",
+        "queue": "c",
+        "stack": "c",
+        "fmpz_factor.h": "c",
+        "tqf.h": "c"
+    },
+    "cSpell.words": [
+        "coeffs"
+    ]
 }
