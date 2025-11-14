@@ -1,3 +1,7 @@
 .vscode/
 build/
 ecq
+perf.data
+FlameGraph
+out.perf-folded
+perf.svg

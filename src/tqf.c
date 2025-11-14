@@ -7,15 +7,17 @@ void fmpz_tqf_init(fmpz_tqf_t C)
     fmpz_factor_init(C->coeffs[2]);
 }
 
-void fmpz_tqf_init_set(fmpz_tqf_t C, fmpz_factor_t a, fmpz_factor_t b, fmpz_factor_t c)
+void fmpz_tqf_set(fmpz_tqf_t C, fmpz_factor_t a, fmpz_factor_t b, fmpz_factor_t c)
 {
-    fmpz_factor_init(C->coeffs[0]);
-    fmpz_factor_init(C->coeffs[1]);
-    fmpz_factor_init(C->coeffs[2]);
-
     fmpz_factor_set(C->coeffs[0], a);
     fmpz_factor_set(C->coeffs[1], b);
     fmpz_factor_set(C->coeffs[2], c);
+}
+
+void fmpz_tqf_init_set(fmpz_tqf_t C, fmpz_factor_t a, fmpz_factor_t b, fmpz_factor_t c)
+{
+    fmpz_tqf_init(C);
+    fmpz_tqf_set(C, a, b, c);
 }
 
 void fmpz_tqf_clear(fmpz_tqf_t C)
@@ -153,6 +155,10 @@ void fmpz_tqf_reduce(fmpz_tqf_t A, const fmpz_tqf_t C, fmpz_t t[3])
            (idx[1] < C->coeffs[1]->num) && 
            (idx[2] < C->coeffs[2]->num))
     {
+        if (m[0] == 1 || m[1] == 1) c[0] = fmpz_cmp(p[0], p[1]);
+        if (m[1] == 1 || m[2] == 1) c[1] = fmpz_cmp(p[1], p[2]);
+        if (m[2] == 1 || m[0] == 1) c[2] = fmpz_cmp(p[2], p[0]);
+
         // easy cases : p[i] alone and smallest
         // p[0] alone 
         if (c[0] < 0 && c[2] > 0) // c[0] is alone and smallest
@@ -245,10 +251,6 @@ void fmpz_tqf_reduce(fmpz_tqf_t A, const fmpz_tqf_t C, fmpz_t t[3])
                 p[l] = C->coeffs[l]->p + idx[l]; e[l] = C->coeffs[l]->exp[idx[l]];
             }
         }
-
-        if (m[0] == 1 || m[1] == 1) c[0] = fmpz_cmp(p[0], p[1]);
-        if (m[1] == 1 || m[2] == 1) c[1] = fmpz_cmp(p[1], p[2]);
-        if (m[2] == 1 || m[0] == 1) c[2] = fmpz_cmp(p[2], p[0]);
     }   
     
     // now only 2 coefficients are left
@@ -269,6 +271,8 @@ void fmpz_tqf_reduce(fmpz_tqf_t A, const fmpz_tqf_t C, fmpz_t t[3])
     while ((idx[i1] < C->coeffs[i1]->num) && 
            (idx[i2] < C->coeffs[i2]->num))
     {
+        c[i1] = fmpz_cmp(p[i1], p[i2]);
+
         // easy cases : p[i] alone and smallest
         // p[i1] alone 
         if (c[i1] < 0) // c[i1] is alone and smallest
@@ -300,8 +304,6 @@ void fmpz_tqf_reduce(fmpz_tqf_t A, const fmpz_tqf_t C, fmpz_t t[3])
                 p[l] = C->coeffs[l]->p + idx[l]; e[l] = C->coeffs[l]->exp[idx[l]];
             }
         }
-
-        c[i1] = fmpz_cmp(p[i1], p[i2]);
     }
 
     // now only 1 coefficients is left
@@ -354,7 +356,7 @@ int fmpz_tqf_certif(fmpz_t k, const fmpz_t a, const fmpz_t b, const fmpz_factor_
             goto CLEAN;
         }
     }
-    err = fmpz_multi_CRT(k, c->p, roots, c->num, 1);
+    err = fmpz_multi_CRT(k, c->p, roots, c->num, 0);
 
     CLEAN:;
     fmpz_clear(tmp);
@@ -380,9 +382,10 @@ static inline ulong _fmpz_tqf_vec3_index2(const fmpz* v, ulong a4, ulong b4, ulo
     return INDEX2(a4, b4, c4, abc4, x4, y4, z4);
 }
 
-static inline ulong _fmpz_tqf_test_sol(const fmpz* a, const fmpz* b, const fmpz* c, const fmpz* S)
+int _fmpz_tqf_test_sol(const fmpz* a, const fmpz* b, const fmpz* c, const fmpz* S)
 {
     fmpz_t x2, y2, z2;
+    int ret;
 
     fmpz_init(x2);
     fmpz_init(y2);
@@ -399,7 +402,13 @@ static inline ulong _fmpz_tqf_test_sol(const fmpz* a, const fmpz* b, const fmpz*
     fmpz_add(x2, x2, y2);
     fmpz_add(x2, x2, z2);
 
-    return fmpz_is_zero(x2);
+    ret = fmpz_is_zero(x2);
+
+    fmpz_clear(x2);
+    fmpz_clear(y2);
+    fmpz_clear(z2);
+
+    return ret;
 }
 
 int fmpz_tqf_solve_reduced(fmpz_tqf_t R, fmpz_t z1, fmpz_t z2, fmpz_t z3)
@@ -462,7 +471,7 @@ int fmpz_tqf_solve_reduced(fmpz_tqf_t R, fmpz_t z1, fmpz_t z2, fmpz_t z3)
     {
         goto CLEAN;
     }  
-    
+
     // past this point we expect a solution and no error should happen
     fmpz_t tmp, u, v, ap, bp;
     fmpz S[3];
@@ -495,6 +504,7 @@ int fmpz_tqf_solve_reduced(fmpz_tqf_t R, fmpz_t z1, fmpz_t z2, fmpz_t z3)
 
     fmpz_xgcd(tmp, u, v, b, c);
     fmpz_xgcd(tmp, ap, bp, a, bc);
+
 
     // alpha = (bp*c*k1) % a
     fmpz_mul(alpha, bp, c);
@@ -568,19 +578,17 @@ int fmpz_tqf_solve_reduced(fmpz_tqf_t R, fmpz_t z1, fmpz_t z2, fmpz_t z3)
     // compute index2 lattice on place
     for (i = 0; i < 3; i++)
     {
-        curr_row = fmpz_mat_row(M, i);
-        if (i == j)
+        if (i != j)
         {
-            _fmpz_vec_add(curr_row, curr_row, curr_row, 3);
-        }
-        else
-        {
+            curr_row = fmpz_mat_row(M, i);
             if (_fmpz_tqf_vec3_index2(curr_row, a4, b4, c4, abc4) == 1)
             {
                 _fmpz_vec_sub(curr_row, curr_row, fmpz_mat_row(M, j), 3);
             }
         }
     }
+    curr_row = fmpz_mat_row(M, j);
+    _fmpz_vec_add(curr_row, curr_row, curr_row, 3);
 
     // compute scaling factors
     fmpz_abs(S + 0, a);
@@ -590,19 +598,27 @@ int fmpz_tqf_solve_reduced(fmpz_tqf_t R, fmpz_t z1, fmpz_t z2, fmpz_t z3)
     fmpz_sqrt(S + 1, S + 1);
     fmpz_sqrt(S + 2, S + 2);
 
-    // scale rows
+    // scale columns
     for (i = 0; i < 3; i++)
     {
-        _fmpz_vec_scalar_mul_fmpz(fmpz_mat_row(M, i), fmpz_mat_row(M, i), 3, S + i);
+        for (j = 0; j < 3; j++)
+        {
+            curr_row = fmpz_mat_entry(M, i, j);
+            fmpz_mul(curr_row, curr_row, S + j);
+        }
     }
 
     // do the actual reduction
     fmpz_lll(M, NULL, LLL);
 
-    // unscale rows
+    // unscale columns
     for (i = 0; i < 3; i++)
     {
-        _fmpz_vec_scalar_divexact_fmpz(fmpz_mat_row(M, i), fmpz_mat_row(M, i), 3, S + i);
+        for (j = 0; j < 3; j++)
+        {
+            curr_row = fmpz_mat_entry(M, i, j);
+            fmpz_divexact(curr_row, curr_row, S + j);
+        }
     }
 
     // iterate over small vectors and test for solution
@@ -664,6 +680,8 @@ int fmpz_tqf_solve_reduced(fmpz_tqf_t R, fmpz_t z1, fmpz_t z2, fmpz_t z3)
     }
 
     flint_printf("tqf failed to find a solution despite solubility certif !\n");
+    fmpz_tqf_print(R); flint_printf("\n");
+    
     flint_abort();
 
     SUCCESS:;

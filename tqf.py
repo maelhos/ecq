@@ -51,7 +51,7 @@ def reduceIsotropic3(c1, c2, c3):
 def smallVects(basis, limit=1):
     for i, j, k in product(range(-limit, limit + 1), repeat=3):
         cb = i*basis[0] + j*basis[1] + k*basis[2]
-        if (cb.norm() != 0): yield cb
+        if (cb.norm() != 0): yield (i, j, k), cb
 
 def solveIsotropicReduced3(a, b, c):
 
@@ -112,6 +112,9 @@ def solveIsotropicReduced3(a, b, c):
     print("FAILLL")
     exit(1)
 
+vector_stat = {}
+
+
 def solveIsotropicReducedOPTI3(a, b, c):
 
     if (a == 1 and b == -1) or (a == -1 and b == 1): return (1, 1, 0)
@@ -123,7 +126,6 @@ def solveIsotropicReducedOPTI3(a, b, c):
     gp, ap, bp = xgcd(a, b*c)
     assert gp == 1, "form not reduced"
 
-
     k3 = solCertif(a, b, c)
     k2 = solCertif(c, a, b)
     k1 = solCertif(b, c, a)
@@ -131,10 +133,11 @@ def solveIsotropicReducedOPTI3(a, b, c):
     if k1 == None or k2 == None or k3 == None:
         return None
     
-    alpha = (bp*c*k1) % a
-    beta  = (u*ap*b*k3) % (b*c)
-    gamma = (v*ap*c*k2) % (b*c)
-    
+    alpha = (bp*c*k1)   % abs(a)
+    beta  = (u*ap*b*k3) % abs(b*c)
+    gamma = (v*ap*c*k2) % abs(b*c)
+
+
     v1 = vector(ZZ, [b*c, 0, 0])
     v2 = vector(ZZ, [a*beta, a, 0])
     v3 = vector(ZZ, [alpha*beta + gamma, alpha, 1])
@@ -157,14 +160,17 @@ def solveIsotropicReducedOPTI3(a, b, c):
     assert vi != None
     
     w = [2*vi if i == j else (vj - vi if e(*vj) == 1 else vj) for j, vj in enumerate(vs)]
+    
     A, B, C = RR(abs(a)), RR(abs(b)), RR(abs(c))
     prec = 1 # kinda random ngl
     # Create the transformation matrix T
     T = diagonal_matrix(ZZ, [int(RR(prec) * sqrt(A)), int(RR(prec) * sqrt(B)), int(RR(prec) * sqrt(C))])
 
     red = (matrix(ZZ, w) * T).LLL() / T
-    for sol in smallVects(red):
+    for cmb, sol in smallVects(red):
         if a*sol[0]**2 + b*sol[1]**2 + c*sol[2]**2 == 0:
+            vector_stat.setdefault(cmb, 0);
+            vector_stat[cmb] += 1
             return sol
         
     print(a, b, c)
@@ -183,7 +189,6 @@ if __name__ == "__main__":
     S = solveIsotropicReducedOPTI3(ap, bp, cp)
     print("solution =", S)
     exit()
-
     for length in range(10, 100):
         print(f"length test : {length}")
 
@@ -210,3 +215,5 @@ if __name__ == "__main__":
             else:
                 print(" : FAIL ! :", (x, y, z))
                 exit()
+
+print(vector_stat)
