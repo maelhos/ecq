@@ -29,12 +29,27 @@ void fmpz_tqf_clear(fmpz_tqf_t C)
 
 void fmpz_tqf_print(const fmpz_tqf_t C)
 {
-    fmpz_factor_print(C->coeffs[0]);
-    flint_printf("x^2 + ");
-    fmpz_factor_print(C->coeffs[1]);
-    flint_printf("y^2 + ");
-    fmpz_factor_print(C->coeffs[2]);
-    flint_printf("z^2 = 0");
+    fmpz_t a, b, c;
+
+    fmpz_init(a);
+    fmpz_init(b);
+    fmpz_init(c);
+
+    fmpz_factor_expand(a, C->coeffs[0]);
+    fmpz_factor_expand(b, C->coeffs[1]);
+    fmpz_factor_expand(c, C->coeffs[2]);
+
+    flint_printf("(");
+    fmpz_print(a);
+    flint_printf(", ");
+    fmpz_print(b);
+    flint_printf(", ");
+    fmpz_print(c);
+    flint_printf(")");
+
+    fmpz_clear(a);
+    fmpz_clear(b);
+    fmpz_clear(c);
 }
 
 static inline void reduce_square_append(fmpz_tqf_t A, fmpz_t* t, fmpz** p, ulong* e, slong l)
@@ -91,7 +106,8 @@ static inline void reduce_append_squares_medium_case(fmpz_tqf_t A, fmpz_t* t, fm
     nb_odd = reduce_squares(t, p, e, null_idx);
 
     if (nb_odd == 2)
-    {
+    {   
+        #pragma GCC unroll 3
         for (l = 0; l < 3; l++)
         {
             if (l != null_idx) 
@@ -103,6 +119,7 @@ static inline void reduce_append_squares_medium_case(fmpz_tqf_t A, fmpz_t* t, fm
         reduce_squares(t, p, e, null_idx);
     }
 
+    #pragma GCC unroll 3
     for (l = 0; l < 3; l++)
     {
         if (l != null_idx && e[l] != 0) 
@@ -207,6 +224,7 @@ void fmpz_tqf_reduce(fmpz_tqf_t A, const fmpz_tqf_t C, fmpz_t t[3])
         else // p[0] = p[1] = p[2] -> we have a common gcd to reduce first
         {
             tmp = 0;
+            #pragma GCC unroll 3
             for (l = 1; l < 3; l++)
             {
                 if (e[l] < e[tmp])
@@ -231,6 +249,7 @@ void fmpz_tqf_reduce(fmpz_tqf_t A, const fmpz_tqf_t C, fmpz_t t[3])
             }
 
             // finally add everything to the reduced form
+            #pragma GCC unroll 3
             for (l = 0; l < 3; l++)
             {
                 if (e[l] != 0) 
@@ -243,6 +262,7 @@ void fmpz_tqf_reduce(fmpz_tqf_t A, const fmpz_tqf_t C, fmpz_t t[3])
         }
 
         // final actualization
+        #pragma GCC unroll 3
         for (l = 0; l < 3; l++)
         {
             if (m[l] == 1)
@@ -254,7 +274,8 @@ void fmpz_tqf_reduce(fmpz_tqf_t A, const fmpz_tqf_t C, fmpz_t t[3])
     }   
     
     // now only 2 coefficients are left
-    done_idx = -1; // will error if not found
+    done_idx = 0;
+    #pragma GCC unroll 3
     for (l = 0; l < 3; l++)
     {
         if (idx[l] == C->coeffs[l]->num)
@@ -263,6 +284,7 @@ void fmpz_tqf_reduce(fmpz_tqf_t A, const fmpz_tqf_t C, fmpz_t t[3])
             break;
         }
     }
+
     i1 = (done_idx + 1) % 3;
     i2 = (done_idx + 2) % 3;
     m[done_idx] = 0;
@@ -271,7 +293,7 @@ void fmpz_tqf_reduce(fmpz_tqf_t A, const fmpz_tqf_t C, fmpz_t t[3])
     while ((idx[i1] < C->coeffs[i1]->num) && 
            (idx[i2] < C->coeffs[i2]->num))
     {
-        c[i1] = fmpz_cmp(p[i1], p[i2]);
+        c[i1] = fmpz_cmp(p[i1], p[i2]); // this is technically an extra comparison more than necessary...
 
         // easy cases : p[i] alone and smallest
         // p[i1] alone 
@@ -296,6 +318,7 @@ void fmpz_tqf_reduce(fmpz_tqf_t A, const fmpz_tqf_t C, fmpz_t t[3])
         }
 
         // final actualization
+        #pragma GCC unroll 3
         for (l = 0; l < 3; l++)
         {
             if (m[l] == 1)
@@ -307,6 +330,7 @@ void fmpz_tqf_reduce(fmpz_tqf_t A, const fmpz_tqf_t C, fmpz_t t[3])
     }
 
     // now only 1 coefficients is left
+    #pragma GCC unroll 3
     for (l = 0; l < 3; l++)
     {
         if (idx[l] != C->coeffs[l]->num)
@@ -346,6 +370,7 @@ int fmpz_tqf_certif(fmpz_t k, const fmpz_t a, const fmpz_t b, const fmpz_factor_
     fmpz_mul(m_ab, a, b);
     fmpz_neg(m_ab, m_ab);
 
+    #pragma GCC unroll 3
     for (i = 0; i < c->num; i++)
     {
         fmpz_mod(tmp, m_ab, c->p + i);
@@ -354,6 +379,13 @@ int fmpz_tqf_certif(fmpz_t k, const fmpz_t a, const fmpz_t b, const fmpz_factor_
         if (err != 1) 
         {
             goto CLEAN;
+        }
+
+        // find smallest root
+        fmpz_sub(tmp, c->p + i, roots + i);
+        if (fmpz_cmp(tmp, roots + i) < 0)
+        {
+            fmpz_set(roots + i, tmp);
         }
     }
     err = fmpz_multi_CRT(k, c->p, roots, c->num, 0);
@@ -366,8 +398,10 @@ int fmpz_tqf_certif(fmpz_t k, const fmpz_t a, const fmpz_t b, const fmpz_factor_
     return err;
 }
 
-
-#define FMPZ_MOD4(f) (COEFF_IS_MPZ(*(f)) ? (FMPZ_TO_ZZ(*(f))->ptr[0] & 3) : ((*(f)) & WORD(3)))
+// this is some ugly bit tricks to compute x mod 4 with x being an fmpz
+// depending on the storage type one has to fix some bits
+#define FMPZ_LIMB_MOD4(f, l) (fmpz_sgn(f) == -1 ? ((4 - l) & 3) : (l))
+#define FMPZ_MOD4(f) (COEFF_IS_MPZ(*(f)) ? FMPZ_LIMB_MOD4(f, (FMPZ_TO_ZZ(*(f))->ptr[0] & 3)) : ((*(f)) & WORD(3)))
 #define FMOD4(a4, b4, c4, x4, y4, z4)  (((a4)*(x4)*(x4) + (b4)*(y4)*(y4) + (c4)*(z4)*(z4)) & 3)
 #define INDEX2(a4, b4, c4, abc4, x4, y4, z4) (((FMOD4(a4, b4, c4, x4, y4, z4)) >> (((abc4) & 1) ^ 1)) & 1)
 
@@ -375,7 +409,7 @@ static inline ulong _fmpz_tqf_vec3_index2(const fmpz* v, ulong a4, ulong b4, ulo
 {
     ulong x4, y4, z4;
 
-    x4 = FMPZ_MOD4(v);
+    x4 = FMPZ_MOD4(v + 0);
     y4 = FMPZ_MOD4(v + 1);
     z4 = FMPZ_MOD4(v + 2);
 
@@ -431,26 +465,31 @@ int fmpz_tqf_solve_reduced(fmpz_tqf_t R, fmpz_t z1, fmpz_t z2, fmpz_t z3)
     fmpz_factor_expand(c, R->coeffs[2]);
     
     // take care of special cases
-    if ((fmpz_cmp_si(a, 1) == 0 && fmpz_cmp_si(b, -1) == 0) || 
-        (fmpz_cmp_si(a, -1) == 0 && fmpz_cmp_si(b, 1) == 0))
+    if ((fmpz_cmp_si(a,  1) == 0 && fmpz_cmp_si(b, -1) == 0) || 
+        (fmpz_cmp_si(a, -1) == 0 && fmpz_cmp_si(b,  1) == 0))
     {
         fmpz_set_si(z1, 1);
         fmpz_set_si(z2, 1);
         fmpz_set_si(z3, 0);
+        return err;
     }
-    else if ((fmpz_cmp_si(a, 1) == 0 && fmpz_cmp_si(c, -1) == 0) || 
-    (fmpz_cmp_si(a, -1) == 0 && fmpz_cmp_si(c, 1) == 0))
+
+    if ((fmpz_cmp_si(a,  1) == 0 && fmpz_cmp_si(c, -1) == 0) || 
+             (fmpz_cmp_si(a, -1) == 0 && fmpz_cmp_si(c,  1) == 0))
     {
         fmpz_set_si(z1, 1);
         fmpz_set_si(z2, 0);
         fmpz_set_si(z3, 1);
+        return err;
     }
-    else if ((fmpz_cmp_si(b, 1) == 0 && fmpz_cmp_si(c, -1) == 0) || 
-    (fmpz_cmp_si(b, -1) == 0 && fmpz_cmp_si(c, 1) == 0))
+    
+    if ((fmpz_cmp_si(b,  1) == 0 && fmpz_cmp_si(c, -1) == 0) || 
+             (fmpz_cmp_si(b, -1) == 0 && fmpz_cmp_si(c,  1) == 0))
     {
         fmpz_set_si(z1, 0);
         fmpz_set_si(z2, 1);
         fmpz_set_si(z3, 1);
+        return err;
     }
 
     // compute solubility certificate
@@ -483,7 +522,7 @@ int fmpz_tqf_solve_reduced(fmpz_tqf_t R, fmpz_t z1, fmpz_t z2, fmpz_t z3)
     slong i, j, k;
 
     fmpz_mat_init(M, 3, 3);
-    fmpz_lll_context_init_default(LLL);
+    fmpz_lll_context_init(LLL, 0.99, 0.501, Z_BASIS, APPROX);
 
     fmpz_init(S + 0);
     fmpz_init(S + 1);
@@ -521,7 +560,7 @@ int fmpz_tqf_solve_reduced(fmpz_tqf_t R, fmpz_t z1, fmpz_t z2, fmpz_t z3)
     fmpz_mod(beta, beta, bc);
 
     // gamma = (v*ap*c*k2) % (b*c)
-    fmpz_mul(gamma, v, ap);
+    fmpz_mul(gamma, v, ap); // gamma is wrong !!!!!!!!!!!!!!!!!!
     fmpz_mod(gamma, gamma, bc);
     fmpz_mul(gamma, gamma, c);
     fmpz_mod(gamma, gamma, bc);
@@ -567,6 +606,7 @@ int fmpz_tqf_solve_reduced(fmpz_tqf_t R, fmpz_t z1, fmpz_t z2, fmpz_t z3)
     abc4 = (a4*b4*c4) & 3;
 
     // compute odd index2 vector
+    #pragma GCC unroll 3
     for (j = 0; j < 3; j++)
     {
         if (_fmpz_tqf_vec3_index2(fmpz_mat_row(M, j), a4, b4, c4, abc4) == 1)
@@ -576,6 +616,7 @@ int fmpz_tqf_solve_reduced(fmpz_tqf_t R, fmpz_t z1, fmpz_t z2, fmpz_t z3)
     }
 
     // compute index2 lattice on place
+    #pragma GCC unroll 3
     for (i = 0; i < 3; i++)
     {
         if (i != j)
@@ -599,8 +640,10 @@ int fmpz_tqf_solve_reduced(fmpz_tqf_t R, fmpz_t z1, fmpz_t z2, fmpz_t z3)
     fmpz_sqrt(S + 2, S + 2);
 
     // scale columns
+    #pragma GCC unroll 3
     for (i = 0; i < 3; i++)
     {
+        #pragma GCC unroll 3
         for (j = 0; j < 3; j++)
         {
             curr_row = fmpz_mat_entry(M, i, j);
@@ -609,11 +652,13 @@ int fmpz_tqf_solve_reduced(fmpz_tqf_t R, fmpz_t z1, fmpz_t z2, fmpz_t z3)
     }
 
     // do the actual reduction
-    fmpz_lll(M, NULL, LLL);
+    fmpz_lll_mpf(M, NULL, LLL);
 
     // unscale columns
+    #pragma GCC unroll 3
     for (i = 0; i < 3; i++)
     {
+        #pragma GCC unroll 3
         for (j = 0; j < 3; j++)
         {
             curr_row = fmpz_mat_entry(M, i, j);
@@ -622,10 +667,13 @@ int fmpz_tqf_solve_reduced(fmpz_tqf_t R, fmpz_t z1, fmpz_t z2, fmpz_t z3)
     }
 
     // iterate over small vectors and test for solution
+    #pragma GCC unroll 3
     for (i = -1; i < 2; i++)
     {
+        #pragma GCC unroll 3
         for (j = -1; j < 2; j++)
         {
+            #pragma GCC unroll 3
             for (k = -1; k < 2; k++)
             {
                 if (i == 0 && j == 0 && k == 0)
@@ -669,9 +717,12 @@ int fmpz_tqf_solve_reduced(fmpz_tqf_t R, fmpz_t z1, fmpz_t z2, fmpz_t z3)
 
                 if (_fmpz_tqf_test_sol(a, b, c, S))
                 {
-                    fmpz_set(z1, S + 0);
-                    fmpz_set(z2, S + 1);
-                    fmpz_set(z3, S + 2);
+                    // just reuse a to store gcd
+                    fmpz_gcd3(a, S + 0, S + 1, S + 2);
+
+                    fmpz_divexact(z1, S + 0, a);
+                    fmpz_divexact(z2, S + 1, a);
+                    fmpz_divexact(z3, S + 2, a);
 
                     goto SUCCESS;
                 }
@@ -695,6 +746,7 @@ int fmpz_tqf_solve_reduced(fmpz_tqf_t R, fmpz_t z1, fmpz_t z2, fmpz_t z3)
     fmpz_clear(S + 0);
     fmpz_clear(S + 1);
     fmpz_clear(S + 2);
+
     return 1;
 
     CLEAN:;
@@ -706,4 +758,227 @@ int fmpz_tqf_solve_reduced(fmpz_tqf_t R, fmpz_t z1, fmpz_t z2, fmpz_t z3)
     fmpz_clear(k3);
 
     return err;
+}
+
+void fmpz_tqf_parametrize(qfb_t q1, qfb_t q2, qfb_t q3, const fmpz_tqf_t R, 
+    const fmpz_t x0, const fmpz_t y0, const fmpz_t z0)
+{
+    fmpz_t a, b, c, ax0, e, z02, by0, tmp, ay0, eax0, eay0;
+
+    fmpz_init(a);
+    fmpz_init(b);
+    fmpz_init(c);
+    fmpz_init(ax0);
+    fmpz_init(e);
+    fmpz_init(z02);
+    fmpz_init(by0);
+    fmpz_init(tmp);
+    fmpz_init(ay0);
+    fmpz_init(eax0);
+    fmpz_init(eay0);
+
+    fmpz_factor_expand(a, R->coeffs[0]);
+    fmpz_factor_expand(b, R->coeffs[1]);
+    fmpz_factor_expand(c, R->coeffs[2]);
+    fmpz_mul(z02, z0, z0);
+    
+    fmpz_invmod(tmp, y0, z02);
+    fmpz_mul(e, x0, tmp);
+    fmpz_mod(e, e, z02);
+
+    fmpz_mul(ax0, a, x0);
+    fmpz_mul(ay0, a, y0);
+    fmpz_mul(by0, b, y0);
+    fmpz_mul(eax0, e, ax0);
+    fmpz_mul(eay0, e, ay0);
+
+    // q1 = a*x0*U**2 + 
+    //      (2 * (e*a*x0 + b*y0) // z0) * U*V + 
+    //      ((a*x0*e**2 + 2*e*b*y0 - b*x0) // z0**2) * V**2
+
+    fmpz_set(q1->a, ax0);
+
+    fmpz_add(q1->b, eax0, by0);
+    fmpz_add(q1->b, q1->b, q1->b);
+    fmpz_divexact(q1->b, q1->b, z0);
+    
+    fmpz_mul(q1->c, eax0, e);
+    fmpz_mul(tmp, e, by0);
+    fmpz_add(tmp, tmp, tmp);
+    fmpz_add(q1->c, q1->c, tmp);
+    fmpz_mul(tmp, b, x0);
+    fmpz_sub(q1->c, q1->c, tmp);
+    fmpz_divexact(q1->c, q1->c, z02);
+
+    // q2 = -a*y0*U**2 + 
+    //      (2 * (a*x0 - a*y0*e) // z0) * U*V + 
+    //      ((2*a*x0*e - a*y0*e**2 + b*y0) // z0**2) * V**2
+
+    fmpz_neg(q2->a, ay0);
+
+    fmpz_sub(q2->b, ax0, eay0);
+    fmpz_add(q2->b, q2->b, q2->b);
+    fmpz_divexact(q2->b, q2->b, z0);
+
+    fmpz_add(q2->c, eax0, eax0);
+    fmpz_mul(tmp, eay0, e);
+    fmpz_sub(q2->c, q2->c, tmp);
+    fmpz_add(q2->c, q2->c, by0);
+    fmpz_divexact(q2->c, q2->c, z02);
+
+    // q3 = a*z0*U**2 + 
+    //      2*a*e*U*V + 
+    //      ((a*e**2 + b) // z0) * V**2
+
+    fmpz_mul(q3->a, a, z0);
+
+    fmpz_mul(tmp, a, e);
+    fmpz_add(q3->b, tmp, tmp);
+
+    fmpz_mul(q3->c, tmp, e); // tmp still has a*e
+    fmpz_add(q3->c, q3->c, b);
+    fmpz_divexact(q3->c, q3->c, z0);
+
+    fmpz_clear(a);
+    fmpz_clear(b);
+    fmpz_clear(c);
+    fmpz_clear(ax0);
+    fmpz_clear(e);
+    fmpz_clear(z02);
+    fmpz_clear(by0);
+    fmpz_clear(tmp);
+    fmpz_clear(ay0);
+    fmpz_clear(eax0);
+    fmpz_clear(eay0);
+}
+
+void test_tqf()
+{
+    fmpz c[3];
+    fmpz sol[3];
+    fmpz_factor_t af, bf, cf;
+
+    fmpz_tqf_t TBF, TBF_r;
+    fmpz_t tr[3];
+
+    int err;
+    ulong l, nb;
+
+    flint_rand_t rstate;
+
+    flint_rand_init(rstate);
+
+    fmpz_init(c + 0);
+    fmpz_init(c + 1);
+    fmpz_init(c + 2);
+
+    fmpz_init(sol + 0);
+    fmpz_init(sol + 1);
+    fmpz_init(sol + 2);
+
+    fmpz_init(tr[0]); 
+    fmpz_init(tr[1]); 
+    fmpz_init(tr[2]);
+
+    // init qbf
+    fmpz_tqf_init(TBF);
+    fmpz_tqf_init(TBF_r);
+
+    // init factors
+    fmpz_factor_init(af);
+    fmpz_factor_init(bf);
+    fmpz_factor_init(cf);
+
+    flint_printf("Testing from bitlength %ld to %ld with %ld run per sample\n", 
+        TQL_TEST_MIN_BIT_LEN, TQL_TEST_MAX_BIT_LEN, TQL_TEST_NB_PER_SAMPLE);
+
+    for (l = TQL_TEST_MIN_BIT_LEN; l <= TQL_TEST_MAX_BIT_LEN; l++)
+    {
+        flint_printf("Test with bitlength %ld\n", l);
+
+        nb = 0;
+        while (nb < TQL_TEST_NB_PER_SAMPLE)
+        {
+            // parameters for c_0 x^2 + c_1 y^2 + c_2 z^2 = 0
+            do 
+            {
+                fmpz_randbits(c + 0, rstate, l);
+                fmpz_randbits(c + 1, rstate, l);
+                fmpz_randbits(c + 2, rstate, l);
+
+                fmpz_mul_si(c + 0, c + 0, (n_randlimb(rstate) % 2) * 2 - 1);
+                fmpz_mul_si(c + 1, c + 1, (n_randlimb(rstate) % 2) * 2 - 1);
+                fmpz_mul_si(c + 2, c + 2, (n_randlimb(rstate) % 2) * 2 - 1);
+
+            } while (fmpz_is_zero(c + 0) || fmpz_is_zero(c + 1) || fmpz_is_zero(c + 2) ||
+                     ((fmpz_sgn(c + 0) == fmpz_sgn(c + 1)) && (fmpz_sgn(c + 1) == fmpz_sgn(c + 2))));
+            
+
+            // factor coeffs
+            fmpz_factor(af, c + 0);
+            fmpz_factor(bf, c + 1);
+            fmpz_factor(cf, c + 2);
+
+            // set tqf
+            fmpz_tqf_set(TBF, af, bf, cf);
+
+            // reduce qbf
+            fmpz_tqf_reduce(TBF_r, TBF, tr);
+            
+            // solving qbf
+            err = fmpz_tqf_solve_reduced(TBF_r, sol + 0, sol + 1, sol + 2);
+            
+            // translating
+            fmpz_mul(sol + 0, sol + 0, tr[0]);
+            fmpz_mul(sol + 1, sol + 1, tr[1]);
+            fmpz_mul(sol + 2, sol + 2, tr[2]);
+
+            // print solution
+            if (err == 1)
+            {   
+                flint_printf("\nTBF : "); fmpz_tqf_print(TBF); flint_printf("\n");
+                flint_printf("TBF reduced : "); fmpz_tqf_print(TBF_r); flint_printf("\n");
+                flint_printf("tr : "); 
+                fmpz_print(tr[0]); flint_printf(" "); 
+                fmpz_print(tr[1]); flint_printf(" ");
+                fmpz_print(tr[2]); flint_printf("\n");
+
+                flint_printf("Found solution : ("); 
+                fmpz_print(sol + 0); flint_printf(", ");
+                fmpz_print(sol + 1); flint_printf(", ");
+                fmpz_print(sol + 2); flint_printf(")\n");
+
+                if (!_fmpz_tqf_test_sol(c + 0, c + 1, c + 2, sol))
+                {
+                    flint_printf("Solution FAIL !!\n");
+                    flint_abort();
+                }
+                nb++;
+            }
+
+        }
+    }
+
+    flint_rand_clear(rstate);
+
+    fmpz_clear(c + 0);
+    fmpz_clear(c + 1);
+    fmpz_clear(c + 2);
+
+    fmpz_clear(sol + 0);
+    fmpz_clear(sol + 1);
+    fmpz_clear(sol + 2);
+
+    fmpz_clear(tr[0]); 
+    fmpz_clear(tr[1]); 
+    fmpz_clear(tr[2]);
+
+    // init qbf
+    fmpz_tqf_clear(TBF);
+    fmpz_tqf_clear(TBF_r);
+
+    // init factors
+    fmpz_factor_clear(af);
+    fmpz_factor_clear(bf);
+    fmpz_factor_clear(cf);
 }
