@@ -10,17 +10,18 @@ Complete $2$-descent is work in progress and is the first goal of this project.
 
 - [x] Basic data structure
 - [x] Computation of the possible value for $b_i$
+- [x] The $2$-descent itself
 
 ### Ternary quadratic forms
 
 - [x] Reduction of TQF
-- [ ] Finding primitive solution with LLL
-- [ ] Parameterization of the solution space
+- [x] Finding primitive solution with LLL
+- [x] Parameterization of the solution space
 
 ### Hyper-elliptic curve of genus $2, 3$
 
 - [ ] Solubility criterion
-- [ ] Basic enumeration
+- [x] Basic enumeration
 - [ ] Sieving for rational points
 - [ ] Higher order descent
 
