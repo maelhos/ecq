@@ -10,7 +10,7 @@ C_INCLUDE_PATH := include
 OUT_NAME := ecq
 
 LIBS := -lm -lgmp -L /usr/local/lib -l:libflint.so
-OPTS := -march=native -Ofast # -g
+OPTS := -march=native -Ofast -g
 
 $(c_object_files): build/%.o : src/%.c
 	@mkdir -p $(dir $@) && \

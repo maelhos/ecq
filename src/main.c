@@ -10,8 +10,6 @@
 int main(int argc, char* argv[])
 {
     fmpz_t e1, e2, e3;
-    // -745, 164, -572
-    // 765, 654, -757
     fmpz_init_set_si(e1, 7265);
     fmpz_init_set_si(e2, 649);
     fmpz_init_set_si(e3, -7557);

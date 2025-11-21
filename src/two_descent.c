@@ -10,7 +10,7 @@ void descent_eq_init(descent_eq_t eq)
     fmpz_init(eq->b2);
     fmpz_init(eq->b3);
 
-    fmpz_bkf_init(eq->sieve_eq);
+    bkf_init(eq->sieve_eq);
 }
 
 void descent_eq_clear(descent_eq_t eq)
@@ -23,10 +23,10 @@ void descent_eq_clear(descent_eq_t eq)
     fmpz_clear(eq->b2);
     fmpz_clear(eq->b3);
 
-    fmpz_bkf_clear(eq->sieve_eq);
+    bkf_clear(eq->sieve_eq);
 }
 
-static inline void compute_sieving_eq(fmpz_bkf_t F, const qfb_t q1, const qfb_t q2, 
+static inline void compute_sieving_eq(bkf_t F, const qfb_t q1, const qfb_t q2, 
                                       const fmpz_t b1, const fmpz_t b2, const fmpz_t r21)
 {
     // = b1*(a*u^2 + b*u*v + c*v^2)^2 - b2*(ap*u^2 + bp*u*v + cp*v^2)
@@ -101,7 +101,7 @@ static inline void compute_sieving_eq(fmpz_bkf_t F, const qfb_t q1, const qfb_t 
 
 int two_descent(const fmpz_t e1, const fmpz_t e2, const fmpz_t e3)
 {
-    slong i, j;
+    slong i, j, k;
 
     // set up full 2-torsion curve
     // y^2 = (x - e1)(x - e2)(x - e3);
@@ -132,14 +132,16 @@ int two_descent(const fmpz_t e1, const fmpz_t e2, const fmpz_t e3)
 
     // compute "reduced" discriminant factorization (no square)
     fmpz_factor_t delta_f, tmp_f;
-    fmpz_t tmp;
+    fmpz_t tmp, delta;
     fmpz_factor_init(delta_f);
     fmpz_factor_init(tmp_f);
     fmpz_init(tmp);
+    fmpz_init(delta);
 
     _fmpz_factor_mul(tmp_f, r21_f, r13_f);
     _fmpz_factor_mul(delta_f, tmp_f, r32_f);
     delta_f->sign = 1;
+    fmpz_factor_expand(delta, delta_f);
 
     flint_printf("delta = "); fmpz_factor_print(delta_f); flint_printf("\n");
 
@@ -181,6 +183,10 @@ int two_descent(const fmpz_t e1, const fmpz_t e2, const fmpz_t e3)
     slong cover_size, cover_alloc;
 
     cover = flint_malloc(sizeof(descent_eq) * 1);
+
+    curr_cover = cover;
+    descent_eq_init(curr_cover);
+
     cover_alloc = 1;
     cover_size = 0;
 
@@ -272,17 +278,6 @@ int two_descent(const fmpz_t e1, const fmpz_t e2, const fmpz_t e3)
                 goto DESCENT_SUCCESS;
             }
 
-            // compute the parametrization and store the binary quartic
-            if (cover_size == cover_alloc)
-            {
-                cover_alloc *= 2;
-                cover = flint_realloc(cover, sizeof(descent_eq) * cover_alloc);
-            }
-
-            // init the new equation
-            curr_cover = cover + cover_size;
-            descent_eq_init(curr_cover);
-
             // parametrize
             fmpz_tqf_parametrize(curr_cover->q1, curr_cover->q2, curr_cover->q3,
                                  Fr, x0p, y0p, z0p);
@@ -307,21 +302,69 @@ int two_descent(const fmpz_t e1, const fmpz_t e2, const fmpz_t e3)
 
             // compute sieving equation
             compute_sieving_eq(curr_cover->sieve_eq, curr_cover->q1, curr_cover->q2, b1, b2, r21);
+            
+            // check solubility and increase size if ok
+            if (bkf_local_solubility(curr_cover->sieve_eq, delta, delta_f))
+            {
+                // reduce it 
+                bkf_reduce_naive(curr_cover->sieve_eq);
 
-            // increase cover size
-            cover_size++;
+                // check if we already have it (TODO: a better equivalence of quartics...)
+                for (k = 0; k < cover_size; k++)
+                {
+                    if (bkf_eq(curr_cover->sieve_eq, (cover + k)->sieve_eq))
+                    {
+                        goto DUPLICATE_CURVE;
+                    }
+                }
+
+                cover_size++;
+                // compute the parametrization and store the binary quartic
+                if (cover_size == cover_alloc)
+                {
+                    cover_alloc *= 2;
+                    cover = flint_realloc(cover, sizeof(descent_eq) * cover_alloc);
+                }
+
+                // shift current equation and initialize it
+                curr_cover = cover + cover_size;
+                descent_eq_init(curr_cover);
+            }
+            DUPLICATE_CURVE:;
+        }
+    }
+
+    flint_printf("Get %ld potential covering curves\n", cover_size);
+
+    // check potential easy solvable
+    // y^2 = ax^4 + bx^3z + cx^2z^2 + dxz^3 + ez^4
+    // if a is a square than (1, 0) works (x = 0 gives a torsion point so we dont care about e being a square)
+    for (i = 0; i < cover_size; i++)
+    {
+        curr_cover = cover + i;
+
+        if (fmpz_is_square(curr_cover->sieve_eq->a) && !fmpz_is_zero(curr_cover->sieve_eq->a))
+        {
+            fmpz_set(z1, curr_cover->q1->a);
+            fmpz_set(z2, curr_cover->q2->a);
+            fmpz_set(z3, curr_cover->q3->a);
+
+            fmpz_set(b1, curr_cover->b1);
+            fmpz_set(b2, curr_cover->b2);
+            fmpz_set(b3, curr_cover->b3);
+
+            goto DESCENT_SUCCESS;
         }
     }
 
     // final descent thing
-    fmpz_t B, U, V, U2, V2, U4, V4, U2V2, U1V3, U3V1, T_P, T_I;
+    fmpz_t B, U, V, U4, V4, U2V2, U1V3, U3V1, T_P, T_I;
+    int ret;
 
     fmpz_init(B);
     fmpz_init(U);
     fmpz_init(V);
 
-    fmpz_init(U2);
-    fmpz_init(V2);
     fmpz_init(U4);
     fmpz_init(V4);
     fmpz_init(U2V2);
@@ -347,39 +390,15 @@ int two_descent(const fmpz_t e1, const fmpz_t e2, const fmpz_t e3)
             }
 
             // precompute powers of U and V
-            fmpz_mul(U2, U, U);
-            fmpz_mul(V2, V, V);
-            fmpz_mul(U2V2, U2, V2);
-            fmpz_mul(U4, U2, U2);
-            fmpz_mul(V4, V2, V2);
-
-            fmpz_mul(U3V1, U2, U);
-            fmpz_mul(U3V1, U3V1, V);
-
-            fmpz_mul(U1V3, V2, V);
-            fmpz_mul(U1V3, U1V3, U);
+            bkf_sieve_precompute(U4, U3V1, U2V2, U1V3, V4, U, V);
 
             for (i = 0; i < cover_size; i++)
             {
                 curr_cover = cover + i;
 
                 // evaluate the bkf at U, V
-                fmpz_mul(T_P, U4,   curr_cover->sieve_eq->a);
-
-                fmpz_mul(T_I,  U3V1, curr_cover->sieve_eq->b);
-
-                fmpz_mul(tmp,  U2V2, curr_cover->sieve_eq->c);
-                fmpz_add(T_P, T_P, tmp);
-
-                fmpz_mul(tmp,  U1V3, curr_cover->sieve_eq->d);
-                fmpz_add(T_I, T_I, tmp);
-
-                fmpz_mul(tmp,  V4,   curr_cover->sieve_eq->e);
-                fmpz_add(T_P, T_P, tmp);
-
-                fmpz_add(test, T_P, T_I);
-
-                if (fmpz_is_square(test) && !fmpz_is_zero(test))
+                ret = bkf_sieve_bounded(test, curr_cover->sieve_eq, U4, U3V1, U2V2, U1V3, V4);
+                if (ret == 1)
                 {
                     qbf_eval(z1, curr_cover->q1, U, V);
                     qbf_eval(z2, curr_cover->q2, U, V);
@@ -391,11 +410,8 @@ int two_descent(const fmpz_t e1, const fmpz_t e2, const fmpz_t e3)
 
                     goto DESCENT_SUCCESS;
                 }
-
-                // evaluate the bkf at U, -V
-                fmpz_sub(test, T_P, T_I);
                 
-                if (fmpz_is_square(test) && !fmpz_is_zero(test))
+                if (ret == -1)
                 {
                     fmpz_neg(V, V);
 

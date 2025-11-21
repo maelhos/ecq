@@ -11,7 +11,7 @@ typedef struct descent_eq
 {
     qfb_t q1, q2, q3;
     fmpz_t b1, b2, b3;
-    fmpz_bkf_t sieve_eq;
+    bkf_t sieve_eq;
 } descent_eq;
 
 typedef descent_eq descent_eq_t[1];

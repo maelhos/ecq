@@ -87,3 +87,42 @@ void _fmpz_factor_mul_square_free(fmpz_factor_t factor, const fmpz_factor_t a, c
         j++;
     }
 }
+
+int fmpz_factor_over_base(fmpz_factor_t z, const fmpz_t a, const fmpz_factor_t base)
+{
+    fmpz_t tmp;
+    slong i, exp;
+    int ret;
+
+    fmpz_init_set(tmp, a);
+
+    z->num = 0;
+    z->sign = fmpz_sgn(a);
+
+
+    for (i = 0; i < base->num; i++)
+    {
+        exp = 0;
+
+        while (fmpz_divisible(tmp, base->p + i))
+        {
+            exp++;
+            fmpz_divexact(tmp, tmp, base->p + i);
+        }
+
+        if (exp > 0)
+        {
+            _fmpz_factor_append(z, base->p + i, exp);
+        }
+
+        if (fmpz_is_one(tmp))
+        {
+            fmpz_clear(tmp);
+            return 1;
+        }
+    }
+
+    ret = fmpz_is_one(tmp);
+    fmpz_clear(tmp);
+    return ret;
+}
