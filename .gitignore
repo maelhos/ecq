@@ -1,5 +1,6 @@
 .vscode/
 build/
+__pycache__/
 ecq
 perf.data
 FlameGraph

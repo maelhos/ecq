@@ -113,3 +113,4 @@ while True:
                     print(f"({x} : {y}) using sieve {u, v} with {z1, z2, z3} and {test = }")
                     assert y**2 - (x - e1)*(x - e2)*(x - e3) == 0
     B += 1
+

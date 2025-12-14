@@ -183,3 +183,18 @@ if __name__ == "__main__":
             else:
                 print(" : FAIL ! :", (x, y, z))
                 exit()
+
+
+"""
+F(alpha, beta) = gamma * delta**2
+let X, Y, Z solution of Y^2 = F(X, Y)
+equivalent to y^2 = f(x / z)
+
+if p^r | (beta * X - alpha * Z)
+then Y^2 = F(X, Z) = lambda**(2n) * F(alpha, beta) = gamma * delta**2 * lambda**(2n) (mod p^r)
+
+N = (|gamma| if gamma = 1 mod 4 else 4|gamma|)
+"""
+
+def quartic_sieving(eq):
+    pass

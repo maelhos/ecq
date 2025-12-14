@@ -1,9 +1,11 @@
 #pragma once
 #include <flint/fmpz_factor.h>
+#include <flint/ulong_extras.h>
 #include <flint/fmpq.h>
 #include <flint/qfb.h>
 
 #include "factor_addition.h"
+#include "sieve.h"
 #include "bkf.h"
 #include "tqf.h"
 

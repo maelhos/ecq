@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stdlib.h>
 #include <flint/fmpz.h>
 #include <flint/fmpz_factor.h>
 #include <flint/fmpz_vec.h>

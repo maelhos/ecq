@@ -358,12 +358,12 @@ int two_descent(const fmpz_t e1, const fmpz_t e2, const fmpz_t e3)
     }
 
     // final descent thing
-    fmpz_t B, U, V, U4, V4, U2V2, U1V3, U3V1, T_P, T_I;
+    fmpz_t U4, V4, U2V2, U1V3, U3V1, T_P, T_I;
+    fmpz* pol;
+    ulong B, U, V, nb_primes;
     int ret;
 
-    fmpz_init(B);
-    fmpz_init(U);
-    fmpz_init(V);
+    pol = _fmpz_vec_init(5);
 
     fmpz_init(U4);
     fmpz_init(V4);
@@ -374,30 +374,32 @@ int two_descent(const fmpz_t e1, const fmpz_t e2, const fmpz_t e3)
     fmpz_init(T_P);
     fmpz_init(T_I);
 
-    fmpz_set_ui(B, 1);
+    // prepare sieve assisted search
+    
+    /*
+    B = 1;
 
     while (1)
     {
         // maybe remove u = 0
-        for (fmpz_set_ui(U, 0); fmpz_cmp(U, B) < 0; fmpz_add_ui(U, U, 1))
+        for (U = 0; U < B; U++)
         {
-            fmpz_sub(V, B, U);
-            fmpz_gcd(test, U, V);
+            V = B - U;
 
-            if (!fmpz_is_one(test))
+            if (n_gcd(U, V) != 1ULL)
             {
                 continue;
             }
 
             // precompute powers of U and V
-            bkf_sieve_precompute(U4, U3V1, U2V2, U1V3, V4, U, V);
+            bkf_power_precompute(U4, U3V1, U2V2, U1V3, V4, U, V);
 
             for (i = 0; i < cover_size; i++)
             {
                 curr_cover = cover + i;
 
                 // evaluate the bkf at U, V
-                ret = bkf_sieve_bounded(test, curr_cover->sieve_eq, U4, U3V1, U2V2, U1V3, V4);
+                ret = bkf_power_bounded(test, curr_cover->sieve_eq, U4, U3V1, U2V2, U1V3, V4);
                 if (ret == 1)
                 {
                     qbf_eval(z1, curr_cover->q1, U, V);
@@ -413,7 +415,7 @@ int two_descent(const fmpz_t e1, const fmpz_t e2, const fmpz_t e3)
                 
                 if (ret == -1)
                 {
-                    fmpz_neg(V, V);
+                    V = -V;
 
                     qbf_eval(z1, curr_cover->q1, U, V);
                     qbf_eval(z2, curr_cover->q2, U, V);
@@ -428,9 +430,52 @@ int two_descent(const fmpz_t e1, const fmpz_t e2, const fmpz_t e3)
             }
         }
 
-        fmpz_add_ui(B, B, 1);
+        B++;
     }
+    */
 
+    nb_primes = 16;
+    B = 1ULL << (nb_primes / 2); 
+    while (1)
+    {
+        for (i = 0; i < cover_size; i++)
+        {
+            curr_cover = cover + i;
+
+            // set the thing
+            fmpz_set(pol + 4, curr_cover->sieve_eq->a);
+            fmpz_set(pol + 3, curr_cover->sieve_eq->b);
+            fmpz_set(pol + 2, curr_cover->sieve_eq->c);
+            fmpz_set(pol + 1, curr_cover->sieve_eq->d);
+            fmpz_set(pol + 0, curr_cover->sieve_eq->e);
+
+            // we avoid p = 2 :(
+            if (sieve_pol(&U, &V, pol, 5, B, n_primes_arr_readonly(nb_primes + 1) + 1, nb_primes))
+            {
+                bkf_power_precompute(U4, U3V1, U2V2, U1V3, V4, U, V);
+                ret = bkf_power_bounded(test, curr_cover->sieve_eq, U4, U3V1, U2V2, U1V3, V4);
+
+                if (ret != 1)
+                {
+                    flint_printf("Sieve failed to find a square, aborting\n");
+                    flint_abort();
+                }
+
+                qbf_eval(z1, curr_cover->q1, U, V);
+                qbf_eval(z2, curr_cover->q2, U, V);
+                qbf_eval(z3, curr_cover->q3, U, V);
+
+                fmpz_set(b1, curr_cover->b1);
+                fmpz_set(b2, curr_cover->b2);
+                fmpz_set(b3, curr_cover->b3);
+
+                goto DESCENT_SUCCESS;
+            }
+        }
+
+        B *= 2;
+        nb_primes += 2; // approximation since nb_prime = 2*log2(H)
+    }
 
     DESCENT_SUCCESS:;
 

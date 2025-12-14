@@ -1,29 +1,33 @@
 #include "bkf.h"
+#include <stdlib.h>
 
-void bkf_sieve_precompute(fmpz_t U4, fmpz_t U3V1, fmpz_t U2V2, fmpz_t U1V3, fmpz_t V4, const fmpz_t U, const fmpz_t V)
+void bkf_power_precompute(fmpz_t U4, fmpz_t U3V1, fmpz_t U2V2, fmpz_t U1V3, fmpz_t V4, long U, long V)
 {
     fmpz_t U2, V2;
 
     fmpz_init(U2);
     fmpz_init(V2);
 
-    fmpz_mul(U2, U, U);
-    fmpz_mul(V2, V, V);
+    ulong pU = labs(U);
+    ulong pV = labs(V);
+
+    fmpz_ui_mul_ui(U2, pU, pU);
+    fmpz_ui_mul_ui(V2, pV, pV);
     fmpz_mul(U2V2, U2, V2);
     fmpz_mul(U4, U2, U2);
     fmpz_mul(V4, V2, V2);
 
-    fmpz_mul(U3V1, U2, U);
-    fmpz_mul(U3V1, U3V1, V);
+    fmpz_mul_si(U3V1, U2, U);
+    fmpz_mul_si(U3V1, U3V1, V);
 
-    fmpz_mul(U1V3, V2, V);
-    fmpz_mul(U1V3, U1V3, U);
+    fmpz_mul_si(U1V3, V2, V);
+    fmpz_mul_si(U1V3, U1V3, U);
 
     fmpz_clear(U2);
     fmpz_clear(V2);
 }
 
-int bkf_sieve_bounded(fmpz_t test, const bkf_t C, const fmpz_t U4, const fmpz_t U3V1, const fmpz_t U2V2, const fmpz_t U1V3, const fmpz_t V4)
+int bkf_power_bounded(fmpz_t test, const bkf_t C, const fmpz_t U4, const fmpz_t U3V1, const fmpz_t U2V2, const fmpz_t U1V3, const fmpz_t V4)
 {   
     fmpz_t T_P, T_I, tmp;
     int ret;

@@ -79,7 +79,7 @@ static inline int bkf_eq(const bkf_t C1, const bkf_t C2)
     return 1;
 }
 
-static inline void qbf_eval(fmpz_t r, const qfb_t C, const fmpz_t u, const fmpz_t v)
+static inline void qbf_eval(fmpz_t r, const qfb_t C, long u, long v)
 {
     // aU^2 + bUV + cV^2
     // U(aU + bV) + cV^2;
@@ -88,19 +88,19 @@ static inline void qbf_eval(fmpz_t r, const qfb_t C, const fmpz_t u, const fmpz_
 
     fmpz_init(tmp);
 
-    fmpz_mul(r, C->a, u);
-    fmpz_mul(tmp, C->b, v);
+    fmpz_mul_si(r, C->a, u);
+    fmpz_mul_si(tmp, C->b, v);
     fmpz_add(r, r, tmp);
-    fmpz_mul(r, r, u);
-    fmpz_mul(tmp, v, v);
+    fmpz_mul_si(r, r, u);
+    fmpz_ui_mul_ui(tmp, v, v);
     fmpz_mul(tmp, tmp, C->c);
     fmpz_add(r, r, tmp);
 
     fmpz_clear(tmp);
 }
 
-void bkf_sieve_precompute(fmpz_t U4, fmpz_t U3V1, fmpz_t U2V2, fmpz_t U1V3, fmpz_t V4, const fmpz_t U, const fmpz_t V);
-int bkf_sieve_bounded(fmpz_t test, const bkf_t C, const fmpz_t U4, const fmpz_t U3V1, const fmpz_t U2V2, const fmpz_t U1V3, const fmpz_t V4);
+void bkf_power_precompute(fmpz_t U4, fmpz_t U3V1, fmpz_t U2V2, fmpz_t U1V3, fmpz_t V4, long U, long V);
+int bkf_power_bounded(fmpz_t test, const bkf_t C, const fmpz_t U4, const fmpz_t U3V1, const fmpz_t U2V2, const fmpz_t U1V3, const fmpz_t V4);
 
 int bkf_local_solubility(bkf_t C, const fmpz_t delta_curve, const fmpz_factor_t delta_curve_f);
 int bkf_real_solubility(const bkf_t C);
