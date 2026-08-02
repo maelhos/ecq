@@ -11,14 +11,34 @@ X = Pu.gen()
 #f = y**2 + x*y + y - (x**3 - 234*x + 1352) #(x - e)*(x**2 - 8*x + 3)
 # = 42
 #f = y**2  - (x - e)*(x**2 - 2*x + 2)
-f = y**2 -  (x+8888)*(x**2 + 58888*x + 868198)
+l = 14
+f = y**2 -  (x - 2**l - 9)*(x**2 + 39 * 2**l * x + 2**l + 37)
 
 print(factor(y**2 - f))
 
-E = EllipticCurve(f)
+def free_QQ_EC_gen(C):
+    magma_shot = f"P<x>:=PolynomialRing(RationalField());E:=EllipticCurve([{str(C.ainvs())[1:-1]}]);SetClassGroupBounds(\"GRH\");print Generators(E);"
+    ret = magma_free(magma_shot)
+    print(ret)
+    if not ":" in ret: return []
+    
+    gen_str = ret.replace(" ", "").split("\n")[0].strip()[1:-1]
+    gens = [C([QQ(e) for e in k[1:-1].split(":")]) for k in gen_str.split(",")]
+    return gens
+
+n = 9458877894
+
+E = EllipticCurve(QQ, [-n**2, 0])
+#E = EllipticCurve(f)
+
 #print(factor((x)*((x + e)**2 + 6*(x + e) + 7)))
 #print(factor((x - e)*(x**2 + 6*x + 1)))
+G = free_QQ_EC_gen(E)[-1]
+print(G)
+
 print(E.ainvs())
+print(E.gens())
+
 
 """
 R<x> := PolynomialRing(Rationals());

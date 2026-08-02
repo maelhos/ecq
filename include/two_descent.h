@@ -11,6 +11,8 @@
 #include "sieve.h"
 #include "bkf.h"
 
+#define SIEVE_BOUND_LIMIT (1ULL << 20)
+
 typedef struct
 {
     // morphism from the homogeneous space back to the curve

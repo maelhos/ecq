@@ -122,9 +122,6 @@ static inline void qbf_eval(fmpz_t r, const qfb_t C, long u, long v)
 }
 
 void bkf_power_precompute(fmpz* pows, long U, long V);
-// C is taken as a plain pointer rather than bkf_t: the two are identical after array
-// decay, but the array form makes gcc's -Wstringop-overread analysis confuse the sizes
-// of the differently sized array parameters and warn about a read that cannot happen.
 int bkf_power_bounded(fmpz_t test, const bkf *C, const fmpz* pows);
 int bkf_local_solubility(bkf_t C, const fmpz_t delta_curve, const fmpz_factor_t delta_curve_f);
 int bkf_everywhere_local_solubility_2isogeny(const bkf_t C, const fmpz_t c, const fmpz_t d, const fmpz_t dp, const fmpz_t d1, const fmpz_factor_t p_list);

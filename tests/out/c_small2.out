@@ -104,7 +104,3 @@ Magma:
   ];
 
 Searching for points on the 8 coverings ...
-Found solution for U = 2, V = 1, y = 5 on 1u^4 + 8u^3v + -10u^2v^2 + -8uv^3 + 1v^4
-Output coord on Em 6
-Output coord on E 6
-(6 : -12 : 1)

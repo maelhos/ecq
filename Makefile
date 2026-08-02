@@ -12,8 +12,8 @@ OUT_NAME := ecq
 DEBUG_OUT_NAME := ecq-debug
 
 LIBS := -lm -lgmp -L /usr/local/lib -l:libflint.so
-OPTS := -march=native -O3 -g
-DEBUG_OPTS := -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined
+OPTS := -march=native -O3
+DEBUG_OPTS := -O2 -g -fno-pie -no-pie -fno-omit-frame-pointer -fsanitize=address,undefined
 
 $(c_object_files): build/%.o : src/%.c
 	@mkdir -p $(dir $@) && \
@@ -38,7 +38,7 @@ test: build
 	@for f in $(TEST_INPUTS); do \
 		printf '%-24s ' "$$f"; \
 		if [ ! -f tests/out/$$(basename $$f).out ]; then echo "NO out (run 'make record')"; continue; fi; \
-		./$(OUT_NAME) < $$f 2>&1 | sed -n '1,/Starting main descent/p' > /tmp/ecq-$$(basename $$f).out; \
+		./$(OUT_NAME) < $$f 2>&1 | sed -n '1,/Searching for points/p' > /tmp/ecq-$$(basename $$f).out; \
 		if diff -q tests/out/$$(basename $$f).out /tmp/ecq-$$(basename $$f).out > /dev/null 2>&1; \
 			then echo "OK"; \
 			else echo "FAIL"; diff -u tests/out/$$(basename $$f).out /tmp/ecq-$$(basename $$f).out | head -30; fi; \
@@ -49,7 +49,7 @@ record: build
 	@mkdir -p tests/out
 	@for f in $(TEST_INPUTS); do \
 		echo "recording $$f"; \
-		./$(OUT_NAME) < $$f 2>&1 | sed -n '1,/Starting main descent/p' > tests/out/$$(basename $$f).out; \
+		./$(OUT_NAME) < $$f 2>&1 | sed -n '1,/Searching for points/p' > tests/out/$$(basename $$f).out; \
 	done
 
 clean:

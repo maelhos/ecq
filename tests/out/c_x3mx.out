@@ -78,7 +78,3 @@ Magma:
   ];
 
 Searching for points on the 6 coverings ...
-Found solution for U = 1, V = 1, y = 2 on 2u^4 + 0u^3v + 0u^2v^2 + 0uv^3 + 2v^4
-Output coord on Em -1
-Output coord on E -1
-(-1 : 0 : 1)

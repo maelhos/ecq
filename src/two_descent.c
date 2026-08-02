@@ -113,7 +113,8 @@ void two_descent(fmpq_t X, const two_cover_t cover)
     fmpz* pows;
     fmpq_t a, b;
     fmpz* pol;
-    ulong B, U, V, nb_primes;
+    ulong B, V, nb_primes;
+    slong U;
     descent_eq* curr_cover;
     slong i;
     int ret;
@@ -134,6 +135,7 @@ void two_descent(fmpq_t X, const two_cover_t cover)
     B = 1ULL << (nb_primes / 2); 
     while (1)
     {
+        flint_printf("Sieving with bound %ld\n", B);
         for (i = 0; i < cover->size; i++)
         {
             curr_cover = cover->cover + i;
@@ -159,11 +161,11 @@ void two_descent(fmpq_t X, const two_cover_t cover)
                 // (a, b) = (U/V, y/V^2) on the homogeneous space 
 
                 fmpz_sqrt(test, test);
-                flint_printf("Found solution for U = %ld, V = %ld, y = %{fmpz} on ", U, V, test);
+                flint_printf("Found solution for U = %wd, V = %wu, y = %{fmpz} on ", U, V, test);
                 bkf_print(curr_cover->eq);
                 flint_printf("\n");
 
-                fmpq_set_ui(a, U, V);
+                fmpq_set_si(a, U, V);
                 fmpq_set_fmpz(b, test);
                 
                 fmpz_set_ui(test, V);
@@ -181,11 +183,15 @@ void two_descent(fmpq_t X, const two_cover_t cover)
                 return;
             }
         }
+        if (B >= SIEVE_BOUND_LIMIT)
+        {
+            flint_printf("Maximum sieve bound attained. Aborting.\n");
+            flint_abort();
+        }
 
         B *= 2;
         nb_primes += 2; // approximation since nb_prime = 2*log2(H)
     }
-
 }
 
 void add_cover_2isogeny(two_cover_t cover, const fmpz_t d1, const fmpz_t c, const fmpz_t d2, const fmpz_t x0, morph_type type)

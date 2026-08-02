@@ -156,6 +156,24 @@ same $S^2(E)$ class can end up as genuinely $GL_2(\mathbb Z)$-inequivalent minim
 search will not relate them. Deduplication of the covering list therefore goes through the
 descent data ($d_1$), not through quartic equivalence.
 
+## Sieving
+
+The point search intersects, for every $Z$, one bit mask per auxiliary prime. That
+intersection used to be `fmpz_and` and accounted for most of the running time, so it now
+runs on a flat bit vector (`include/bitvec.h`) instead.
+
+`src/bitvec.c` carries three implementations of the limb kernels — AVX-512, AVX2 and a
+portable scalar one — written once against a small set of macros and selected at compile
+time from the target's feature macros, so `-march=native` picks the best the machine has.
+Measured on a Zen 3 (AVX2, no AVX-512):
+
+| kernel | `bv_and_into` |
+| --- | --- |
+| scalar | 13.1 GB/s |
+| AVX2 | 40.7 GB/s |
+
+and against the old `fmpz` sieve, end to end: `62.9 s -> 1.0 s` on `tests/curves/goal`.
+
 ## Installation
 
 For now, `ECQ` is dependent on [`FLINT`](https://github.com/flintlib/flint).
@@ -167,8 +185,9 @@ Compared against `mwrank` on the same curves, second descent enabled on both sid
 | curve | `ecq` | `mwrank` |
 | --- | --- | --- |
 | `[0, -357, 0, -55091113, 35631141645]` | 0.05 s | 0.12 s |
-| `[0, 67776, 0, 524264742, 7716543824]` | 0.12 s | 0.13 s |
-
+| `[0, 67776, 0, 524264742, 7716543824]` | 0.11 s | 0.13 s |
+| `[0, 311287, 0, -2620112859, -67486029]` | 0.840s | ~10h |
+| `[0, 0, 0, -104837121, 0]` | 0.968s | $\infty$ |
 On the first of these, $y^2 = (x - 7265)(x - 649)(x + 7557)$, the point found is
 
 $$\left(\frac{140126657820200215}{268640327843001}, -\frac{366795884453758471044805220}{4403082402069074983251}\right)$$

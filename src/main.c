@@ -14,7 +14,6 @@
 #include "second_descent.h"
 #include "descent.h"
 
-// how many ELS descendants to keep per first descent cover
 /* How many ELS descendants to keep per first descent cover.
 
 Cremona d2 3.2.3: the d3 giving ELS descendants of a given C_d1 form one complete
@@ -53,6 +52,7 @@ int main(int argc, char* argv[])
     flint_printf("> "); fmpz_fread(stdin, a4);
     flint_printf("> "); fmpz_fread(stdin, a6);
 
+    flint_printf("\nUsing %s implem\n", bv_simd_name());
     fmpz_init(a1m);
     fmpz_init(a2m);
     fmpz_init(a3m);
