@@ -1,0 +1,92 @@
+> > > > > disc = 2304
+E : y^2 = x^3 + 5x^2 + 4x
+Em : y^2 = x^3 - 1x^2 - 4x + 4
+Using isomorphism : [1, -2, 0, 0]
+Descent via 2-isogeny (first descent + optional second descent using ternary quadratic forms)
+
+Using isogeny number 1 with x-torsion 1 on the minimal model
+
+--- E  : 4 candidates for d1 ---
+  [ELS] d1 = 1   C = [1, 0, 2, 0, -3]
+       trivial class, no descent needed
+  [ELS] d1 = 3   C = [3, 0, 2, 0, -1]
+       d3 = 2  descendant [1, -8, 2, 8, 1]
+  [ELS] d1 = -1   C = [-1, 0, 2, 0, 3]
+       d3 = 2  descendant [1, 4, 8, -8, 4]
+  [ELS] d1 = -3   C = [-3, 0, 2, 0, 1]
+       d3 = 1  descendant [1, 0, -1, 0, 1]
+  E  : 4 of 4 candidates everywhere locally soluble
+
+--- E' : 4 candidates for d1 ---
+  [ELS] d1 = 1   C = [1, 0, -4, 0, 16]
+  E' : 1 of 4 candidates everywhere locally soluble
+
+  Selmer: #S^(phi)(E'/Q) = 4, #S^(phi')(E/Q) = 1
+
+Using isogeny number 2 with x-torsion -2 on the minimal model
+
+--- E  : 8 candidates for d1 ---
+  [ELS] d1 = 1   C = [1, 0, -7, 0, 12]
+       trivial class, no descent needed
+  [ELS] d1 = 2   C = [2, 0, -7, 0, 6]
+       d3 = -1  descendant [1, -4, 8, 8, 4]
+  [ELS] d1 = 3   C = [3, 0, -7, 0, 4]
+       no ELS descendant => C(Q) is empty
+  [ELS] d1 = 6   C = [6, 0, -7, 0, 2]
+       d3 = 1  descendant [1, 8, 2, -8, 1]
+  E  : 4 of 8 candidates everywhere locally soluble
+
+--- E' : 2 candidates for d1 ---
+  [ELS] d1 = 1   C = [1, 0, 14, 0, 1]
+  E' : 1 of 2 candidates everywhere locally soluble
+
+  Selmer: #S^(phi)(E'/Q) = 4, #S^(phi')(E/Q) = 1
+
+Using isogeny number 3 with x-torsion 2 on the minimal model
+
+--- E  : 4 candidates for d1 ---
+  [ELS] d1 = 1   C = [1, 0, 5, 0, 4]
+       trivial class, no descent needed
+  [ELS] d1 = 2   C = [2, 0, 5, 0, 2]
+       no ELS descendant => C(Q) is empty
+  [ELS] d1 = -1   C = [-1, 0, 5, 0, -4]
+       no ELS descendant => C(Q) is empty
+  [ELS] d1 = -2   C = [-2, 0, 5, 0, -2]
+       no ELS descendant => C(Q) is empty
+  E  : 4 of 4 candidates everywhere locally soluble
+
+--- E' : 4 candidates for d1 ---
+  [ELS] d1 = 1   C = [1, 0, -10, 0, 9]
+  E' : 1 of 4 candidates everywhere locally soluble
+
+  Selmer: #S^(phi)(E'/Q) = 4, #S^(phi')(E/Q) = 1
+
+================= 2-coverings (8) =================
+each is  y^2 = a x^4 + b x^3 + c x^2 + d x + e  given as [a, b, c, d, e]
+
+   1  E   2nd     d1 = 3  d3 = 2  [1, -8, 2, 8, 1]
+   2  E   2nd     d1 = -1  d3 = 2  [1, 4, 8, -8, 4]
+   3  E   2nd     d1 = -3  d3 = 1  [1, 0, -1, 0, 1]
+   4  E'  1st     d1 = 1  d3 = 1  [1, 0, -4, 0, 16]
+   5  E   2nd     d1 = 2  d3 = -1  [1, -4, 8, 8, 4]
+   6  E   2nd     d1 = 6  d3 = 1  [1, 8, 2, -8, 1]
+   7  E'  1st     d1 = 1  d3 = 1  [1, 0, 14, 0, 1]
+   8  E'  1st     d1 = 1  d3 = 1  [1, 0, -10, 0, 9]
+
+Magma:
+  covers := [
+    [1, -8, 2, 8, 1],
+    [1, 4, 8, -8, 4],
+    [1, 0, -1, 0, 1],
+    [1, 0, -4, 0, 16],
+    [1, -4, 8, 8, 4],
+    [1, 8, 2, -8, 1],
+    [1, 0, 14, 0, 1],
+    [1, 0, -10, 0, 9]
+  ];
+
+Searching for points on the 8 coverings ...
+Found solution for U = 1, V = 1, y = 2 on 1u^4 + -8u^3v + 2u^2v^2 + 8uv^3 + 1v^4
+Output coord on Em 4
+Output coord on E 2
+(2 : -6 : 1)

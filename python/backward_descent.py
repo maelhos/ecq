@@ -12,7 +12,7 @@ UV = PolynomialRing(QQ, "U, V, W")
 U, V, W = UV.gens()
 
 e1, e2, e3 = 7265, 649, -7557 # hard
-e1, e2, e3 = 765, 654, -757 # medium
+#e1, e2, e3 = 765, 654, -757 # medium
 #e1, e2, e3 = -45171, 16881, -57427 # easy
 
 f = y**2 - (x - e1)*(x - e2)*(x - e3)

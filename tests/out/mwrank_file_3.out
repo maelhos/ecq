@@ -1,0 +1,74 @@
+> > > > > disc = 10904053759249262816944470528
+E : y^2 = x^3 + 67776x^2 + 524264742x + 7716543824
+Em : y^2 = x^3 - 1006930650x + 11225371689936
+Using isomorphism : [1, -22592, 0, 0]
+Descent via 2-isogeny (first descent + optional second descent using ternary quadratic forms)
+
+Using isogeny number 1 with x-torsion 13704 on the minimal model
+
+--- E  : 256 candidates for d1 ---
+  [ELS] d1 = 1   C = [1, 0, 41112, 0, -443531802]
+       trivial class, no descent needed
+  [ELS] d1 = 6   C = [6, 0, 41112, 0, -73921967]
+       no ELS descendant => C(Q) is empty
+  [ELS] d1 = 7   C = [7, 0, 41112, 0, -63361686]
+       no ELS descendant => C(Q) is empty
+  [ELS] d1 = 42   C = [42, 0, 41112, 0, -10560281]
+       d3 = -2  descendant [-5276, -10896, 211212, 115200, 687]
+  [ELS] d1 = 1258   C = [1258, 0, 41112, 0, -352569]
+       no ELS descendant => C(Q) is empty
+  [ELS] d1 = 1887   C = [1887, 0, 41112, 0, -235046]
+       no ELS descendant => C(Q) is empty
+  [ELS] d1 = 8806   C = [8806, 0, 41112, 0, -50367]
+       no ELS descendant => C(Q) is empty
+  [ELS] d1 = 13209   C = [13209, 0, 41112, 0, -33578]
+       no ELS descendant => C(Q) is empty
+  [ELS] d1 = -33578   C = [-33578, 0, 41112, 0, 13209]
+       no ELS descendant => C(Q) is empty
+  [ELS] d1 = -50367   C = [-50367, 0, 41112, 0, 8806]
+       no ELS descendant => C(Q) is empty
+  [ELS] d1 = -235046   C = [-235046, 0, 41112, 0, 1887]
+       no ELS descendant => C(Q) is empty
+  [ELS] d1 = -352569   C = [-352569, 0, 41112, 0, 1258]
+       no ELS descendant => C(Q) is empty
+  [ELS] d1 = -10560281   C = [-10560281, 0, 41112, 0, 42]
+       d3 = 433040469  descendant [45309, -99676, 1404, 70968, 49860]
+  [ELS] d1 = -63361686   C = [-63361686, 0, 41112, 0, 7]
+       no ELS descendant => C(Q) is empty
+  [ELS] d1 = -73921967   C = [-73921967, 0, 41112, 0, 6]
+       no ELS descendant => C(Q) is empty
+  [ELS] d1 = -443531802   C = [-443531802, 0, 41112, 0, 1]
+       d3 = 579  descendant [4, 0, -82224, 0, 866080938]
+  E  : 16 of 256 candidates everywhere locally soluble
+
+--- E' : 64 candidates for d1 ---
+  [ELS] d1 = 1   C = [1, 0, -82224, 0, 3464323752]
+  [ELS] d1 = 866080938   C = [866080938, 0, -82224, 0, 4]
+       d3 = 42217  descendant [8806, 0, 41112, 0, -50367]
+  E' : 2 of 64 candidates everywhere locally soluble
+
+  Selmer: #S^(phi)(E'/Q) = 16, #S^(phi')(E/Q) = 2
+
+================= 2-coverings (5) =================
+each is  y^2 = a x^4 + b x^3 + c x^2 + d x + e  given as [a, b, c, d, e]
+
+   1  E   2nd     d1 = 42  d3 = -2  [-5276, -10896, 211212, 115200, 687]
+   2  E   2nd     d1 = -10560281  d3 = 433040469  [45309, -99676, 1404, 70968, 49860]
+   3  E   2nd     d1 = -443531802  d3 = 579  [4, 0, -82224, 0, 866080938]
+   4  E'  1st     d1 = 1  d3 = 1  [1, 0, -82224, 0, 3464323752]
+   5  E'  2nd     d1 = 866080938  d3 = 42217  [8806, 0, 41112, 0, -50367]
+
+Magma:
+  covers := [
+    [-5276, -10896, 211212, 115200, 687],
+    [45309, -99676, 1404, 70968, 49860],
+    [4, 0, -82224, 0, 866080938],
+    [1, 0, -82224, 0, 3464323752],
+    [8806, 0, 41112, 0, -50367]
+  ];
+
+Searching for points on the 5 coverings ...
+Found solution for U = 1140, V = 1513, y = 631476150 on 45309u^4 + -99676u^3v + 1404u^2v^2 + 70968uv^3 + 49860v^4
+Output coord on Em 131769730066363334479 / 11076725778300625
+Output coord on E -118475658717004385521 / 11076725778300625
+(-118475658717004385521 / 11076725778300625 : -1124439686694211227078936135317 / 1165781358181172036265625 : 1)

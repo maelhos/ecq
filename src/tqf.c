@@ -1,4 +1,5 @@
 #include "tqf.h"
+#include <assert.h>
 
 void fmpz_tqf_init(fmpz_tqf_t C)
 {
@@ -134,11 +135,11 @@ void fmpz_tqf_reduce(fmpz_tqf_t A, const fmpz_tqf_t C, fmpz_t t[3])
     slong l;
     slong done_idx, i1, i2; // first idx of coeff to be completely treated
     ulong tmp, nb_odd;
-    slong idx[3]; // the current idx in the factorization struct of each coeff
-    fmpz* p[3];   // the current primes   considered in the form
+    slong idx[3];     // the current idx in the factorization struct of each coeff
+    fmpz* p[3];       // the current primes   considered in the form
     ulong e[3], em;   // the current exponent considered in the form
-    int   c[3];   // different comparison between curent lowest prime of the 3 coeffs of the form
-    char  m[3] = {0};   // marks which index was treated during the main loop
+    int   c[3];       // different comparison between curent lowest prime of the 3 coeffs of the form
+    char  m[3] = {0}; // marks which index was treated during the main loop
     fmpz_t g;
 
     fmpz_init(g);
@@ -159,6 +160,28 @@ void fmpz_tqf_reduce(fmpz_tqf_t A, const fmpz_tqf_t C, fmpz_t t[3])
     idx[1] = 0;
     idx[2] = 0;
 
+    //
+    int finished_cnt = 0;
+
+    #pragma GCC unroll 3
+    for (l = 0; l < 3; l++)
+    {
+        if (C->coeffs[l]->num > 0)
+        {
+            p[l] = C->coeffs[l]->p;
+            e[l] = C->coeffs[l]->exp[0];
+        }
+        else
+        {
+            finished_cnt++;
+        }
+    }
+
+    if (finished_cnt == 1) goto TWO_LEFT;
+    if (finished_cnt == 2) goto ONE_LEFT;
+    if (finished_cnt == 3) goto DONE;
+    //
+    
     p[0] = C->coeffs[0]->p; e[0] = C->coeffs[0]->exp[0];
     p[1] = C->coeffs[1]->p; e[1] = C->coeffs[1]->exp[0];
     p[2] = C->coeffs[2]->p; e[2] = C->coeffs[2]->exp[0];
@@ -168,9 +191,7 @@ void fmpz_tqf_reduce(fmpz_tqf_t A, const fmpz_tqf_t C, fmpz_t t[3])
     c[2] = fmpz_cmp(p[2], p[0]);
 
     // main loop processes primes in ascending order
-    while ((idx[0] < C->coeffs[0]->num) && 
-           (idx[1] < C->coeffs[1]->num) && 
-           (idx[2] < C->coeffs[2]->num))
+    while (1)
     {
         if (m[0] == 1 || m[1] == 1) c[0] = fmpz_cmp(p[0], p[1]);
         if (m[1] == 1 || m[2] == 1) c[1] = fmpz_cmp(p[1], p[2]);
@@ -268,11 +289,18 @@ void fmpz_tqf_reduce(fmpz_tqf_t A, const fmpz_tqf_t C, fmpz_t t[3])
             if (m[l] == 1)
             {
                 idx[l]++;
-                p[l] = C->coeffs[l]->p + idx[l]; e[l] = C->coeffs[l]->exp[idx[l]];
+                if (idx[l] == C->coeffs[l]->num)
+                {
+                    goto TWO_LEFT;
+                }
+
+                p[l] = C->coeffs[l]->p + idx[l]; 
+                e[l] = C->coeffs[l]->exp[idx[l]];
             }
         }
     }   
     
+    TWO_LEFT:;
     // now only 2 coefficients are left
     done_idx = 0;
     #pragma GCC unroll 3
@@ -290,8 +318,7 @@ void fmpz_tqf_reduce(fmpz_tqf_t A, const fmpz_tqf_t C, fmpz_t t[3])
     m[done_idx] = 0;
 
     // second loop processes primes in ascending order
-    while ((idx[i1] < C->coeffs[i1]->num) && 
-           (idx[i2] < C->coeffs[i2]->num))
+    while (1)
     {
         c[i1] = fmpz_cmp(p[i1], p[i2]); // this is technically an extra comparison more than necessary...
 
@@ -324,28 +351,41 @@ void fmpz_tqf_reduce(fmpz_tqf_t A, const fmpz_tqf_t C, fmpz_t t[3])
             if (m[l] == 1)
             {
                 idx[l]++;
-                p[l] = C->coeffs[l]->p + idx[l]; e[l] = C->coeffs[l]->exp[idx[l]];
+                if (idx[l] == C->coeffs[l]->num)
+                {
+                    goto ONE_LEFT;
+                }
+
+                p[l] = C->coeffs[l]->p + idx[l]; 
+                e[l] = C->coeffs[l]->exp[idx[l]];
             }
         }
     }
 
+    ONE_LEFT:;
     // now only 1 coefficients is left
     #pragma GCC unroll 3
     for (l = 0; l < 3; l++)
     {
         if (idx[l] != C->coeffs[l]->num)
         {
-            while (idx[l] < C->coeffs[l]->num)
+            while (1)
             {
                 reduce_square_append(A, t, p, e, l);
                 idx[l]++;
+
+                if (idx[l] == C->coeffs[l]->num)
+                {
+                    goto DONE;
+                }
+
                 p[l] = C->coeffs[l]->p + idx[l]; 
                 e[l] = C->coeffs[l]->exp[idx[l]];
             }
-            break;
         }
     }
 
+    DONE:;
     // finally reduce translation
     fmpz_gcd3(g, t[0], t[1], t[2]);
     fmpz_divexact(t[0], t[0], g);
@@ -388,7 +428,15 @@ int fmpz_tqf_certif(fmpz_t k, const fmpz_t a, const fmpz_t b, const fmpz_factor_
             fmpz_set(roots + i, tmp);
         }
     }
-    err = fmpz_multi_CRT(k, c->p, roots, c->num, 0);
+    
+    if (c->num == 0) // if c = +-1
+    {
+        fmpz_zero(k); // modulo 1 there is only 0 ...
+    }
+    else
+    {
+        err = fmpz_multi_CRT(k, c->p, roots, c->num, 0);
+    }
 
     CLEAN:;
     fmpz_clear(tmp);
@@ -445,7 +493,7 @@ int _fmpz_tqf_test_sol(const fmpz* a, const fmpz* b, const fmpz* c, const fmpz* 
     return ret;
 }
 
-int fmpz_tqf_solve_reduced(fmpz_tqf_t R, fmpz_t z1, fmpz_t z2, fmpz_t z3)
+int fmpz_tqf_solve_reduced(const fmpz_tqf_t R, fmpz_t z1, fmpz_t z2, fmpz_t z3)
 {
     fmpz_t a, b, c;
     fmpz_t k1, k2, k3;
@@ -560,7 +608,9 @@ int fmpz_tqf_solve_reduced(fmpz_tqf_t R, fmpz_t z1, fmpz_t z2, fmpz_t z3)
     fmpz_mod(beta, beta, bc);
 
     // gamma = (v*ap*c*k2) % (b*c)
-    fmpz_mul(gamma, v, ap); // gamma is wrong !!!!!!!!!!!!!!!!!!
+    // checked against python/tqf.py: the reference reduces mod abs(b*c) and fmpz_mod
+    // always returns a residue in [0, |h|), so this matches even though a, b, c may be negative
+    fmpz_mul(gamma, v, ap);
     fmpz_mod(gamma, gamma, bc);
     fmpz_mul(gamma, gamma, c);
     fmpz_mod(gamma, gamma, bc);
@@ -852,6 +902,163 @@ void fmpz_tqf_parametrize(qfb_t q1, qfb_t q2, qfb_t q3, const fmpz_tqf_t R,
     fmpz_clear(eay0);
 }
 
+void fmpz_tqf_parametrize_semi_diag(qfb_t q1, qfb_t q2, qfb_t q3, 
+    const fmpz_t d1, const fmpz_t c, const fmpz_t d2, 
+    const fmpz_t delta,
+    const fmpz_t x0, const fmpz_t y0, const fmpz_t z0)
+{
+    fmpz_t tmp;
+
+    fmpz_init(tmp);
+
+    if (fmpz_is_zero(y0))
+    {
+        fmpz_t de, a1, a2;
+
+        fmpz_init(de);
+        fmpz_init(a1);
+        fmpz_init(a2);
+
+        // de = sqrt(delta)
+        fmpz_sqrt(de, delta);
+
+        // a1 = gcd(d1, (de + c) // 2)
+        fmpz_add(tmp, de, c);
+        fmpz_fdiv_q_2exp(tmp, tmp, 1);
+        fmpz_gcd(a1, d1, tmp);
+
+        // a2 = d1 // a1
+        fmpz_divexact(a2, d1, a1);
+
+        // Q1 = a1*(de - c) / (2*d1) * u**2 + (de + c) / (2*a1) * v**2
+        fmpz_sub(q1->a, de, c);
+        fmpz_mul(q1->a, q1->a, a1);
+        fmpz_divexact(q1->a, q1->a, d1);
+        fmpz_fdiv_q_2exp(q1->a, q1->a, 1);
+ 
+        fmpz_zero(q1->b);
+
+        fmpz_add(q1->c, de, c);
+        fmpz_divexact(q1->c, q1->c, a1);
+        fmpz_fdiv_q_2exp(q1->c, q1->c, 1);
+
+        // Q2 = de * u*v
+        fmpz_zero(q2->a);
+        fmpz_set(q2->b, de);
+        fmpz_zero(q2->c);
+
+        // Q3 = a1 * u**2 - a2 * v**2
+        fmpz_set(q3->a, a1);
+        fmpz_zero(q3->b);
+        fmpz_neg(q3->c, a2);
+
+        fmpz_clear(de);
+        fmpz_clear(a1);
+        fmpz_clear(a2);
+    }
+    else
+    {
+        fmpz_t e, t, s, g, e2, y0y04, d1x02, d2z02, cx0, cz0, x0e, z0e;
+
+        fmpz_init(e);
+        fmpz_init(t);
+        fmpz_init(s);
+        fmpz_init(g);
+        fmpz_init(e2);
+        fmpz_init(y0y04);
+        fmpz_init(d1x02);
+        fmpz_init(d2z02);
+        fmpz_init(cx0);
+        fmpz_init(cz0);
+        fmpz_init(x0e);
+        fmpz_init(z0e);
+
+        fmpz_xgcd(g, s, t, x0, z0);
+
+        if (!fmpz_is_one(g))
+        {
+            flint_printf("Error in parrametrization of semi-diagonal form, solution is no reduced\n");
+            flint_abort();
+        }
+
+        fmpz_mul(y0y04, y0, y0);
+        fmpz_mul_2exp(y0y04, y0y04, 2);
+        fmpz_mul(d1x02, d1, x0);
+        fmpz_mul_2exp(d1x02, d1x02, 1);
+        fmpz_mul(d2z02, d2, z0);
+        fmpz_mul_2exp(d2z02, d2z02, 1);
+        fmpz_mul(cx0, c, x0);
+        fmpz_mul(cz0, c, z0);
+
+        // e = (t*(2*d1*x0 + c*z0) - s*(2*d2*z0 + c*x0)) % (4*y0**2)
+        fmpz_add(e, d1x02, cz0);
+        fmpz_mul(e, e, t);
+        fmpz_add(tmp, d2z02, cx0);
+        fmpz_mul(tmp, tmp, s);
+        fmpz_sub(e, e, tmp);
+        fmpz_mod(e, e, y0y04);
+
+        fmpz_mul(e2, e , e);
+        fmpz_mul(x0e, e, x0);
+        fmpz_mul(z0e, e, z0);
+
+        //Q1 = x0*u^2 + ((x0*c + 2*z0*d2 + x0*e)/y0)*u*v + ((e*(2*(x0*c + 2*z0*d2) + x0*e) + x0*delta)/(4*y0^2))*v^2
+        fmpz_set(q1->a, x0);
+        fmpz_add(q1->b, x0e, cx0);
+        fmpz_add(q1->b, q1->b, d2z02);
+        assert(fmpz_divides(tmp, q1->b, y0));
+        fmpz_divexact(q1->b, q1->b, y0);
+
+        fmpz_add(q1->c, cx0, d2z02);
+        fmpz_mul_2exp(q1->c, q1->c, 1);
+        fmpz_add(q1->c, q1->c, x0e);
+        fmpz_mul(q1->c, q1->c, e);
+        fmpz_mul(tmp, x0, delta);
+        fmpz_add(q1->c, q1->c, tmp);
+        assert(fmpz_divides(tmp, q1->c, y0y04));
+        fmpz_divexact(q1->c, q1->c, y0y04);
+
+        //Q2 = y0*u^2 + e*u*v + ((e^2 - delta)/(4*y0))*v^2
+        fmpz_set(q2->a, y0);
+        fmpz_set(q2->b, e);
+        fmpz_sub(q2->c, e2, delta);
+        assert(fmpz_divides(tmp, q2->c, y0));
+        fmpz_divexact(q2->c, q2->c, y0);
+        fmpz_fdiv_q_2exp(q2->c, q2->c, 2);
+
+        //Q3 = z0*u^2 + ((-2*x0*d1 - z0*c + z0*e)/y0)*u*v + ((e(-2(2*x0*d1 + z0*c) + z0*e) + z0*delta)/(4*y0^2))*v^2
+        fmpz_set(q3->a, z0);
+        fmpz_sub(q3->b, z0e, cz0);
+        fmpz_sub(q3->b, q3->b, d1x02);
+        assert(fmpz_divides(tmp, q3->b, y0));
+        fmpz_divexact(q3->b, q3->b, y0);
+
+        fmpz_add(q3->c, cz0, d1x02);
+        fmpz_mul_2exp(q3->c, q3->c, 1);
+        fmpz_sub(q3->c, z0e, q3->c);
+        fmpz_mul(q3->c, q3->c, e);
+        fmpz_mul(tmp, z0, delta);
+        fmpz_add(q3->c, q3->c, tmp);
+        assert(fmpz_divides(tmp, q3->c, y0y04));
+        fmpz_divexact(q3->c, q3->c, y0y04);
+
+        fmpz_clear(e);
+        fmpz_clear(t);
+        fmpz_clear(s);
+        fmpz_clear(g);
+        fmpz_clear(e2);
+        fmpz_clear(y0y04);
+        fmpz_clear(d1x02);
+        fmpz_clear(d2z02);
+        fmpz_clear(cx0);
+        fmpz_clear(cz0);
+        fmpz_clear(x0e);
+        fmpz_clear(z0e);
+    }
+
+    fmpz_clear(tmp);
+}
+
 void test_tqf()
 {
     fmpz c[3];
@@ -902,9 +1109,9 @@ void test_tqf()
             // parameters for c_0 x^2 + c_1 y^2 + c_2 z^2 = 0
             do 
             {
-                fmpz_randbits(c + 0, rstate, l);
-                fmpz_randbits(c + 1, rstate, l);
-                fmpz_randbits(c + 2, rstate, l);
+                fmpz_randtest_not_zero(c + 0, rstate, l);
+                fmpz_randtest_not_zero(c + 1, rstate, l);
+                fmpz_randtest_not_zero(c + 2, rstate, l);
 
                 fmpz_mul_si(c + 0, c + 0, (n_randlimb(rstate) % 2) * 2 - 1);
                 fmpz_mul_si(c + 1, c + 1, (n_randlimb(rstate) % 2) * 2 - 1);

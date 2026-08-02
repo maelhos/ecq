@@ -1,0 +1,104 @@
+> > > > > disc = 1000000
+E : y^2 = x^3 - 25x
+Em : y^2 = x^3 - 25x
+Using isomorphism : [1, 0, 0, 0]
+Descent via 2-isogeny (first descent + optional second descent using ternary quadratic forms)
+
+Using isogeny number 1 with x-torsion 0 on the minimal model
+
+--- E  : 4 candidates for d1 ---
+  [ELS] d1 = 1   C = [1, 0, 0, 0, -25]
+       trivial class, no descent needed
+  [ELS] d1 = 5   C = [5, 0, 0, 0, -5]
+       d3 = 1  descendant [-1, 0, 30, 0, -25]
+  [ELS] d1 = -1   C = [-1, 0, 0, 0, 25]
+       d3 = 10  descendant [5, 0, 0, 0, 20]
+  [ELS] d1 = -5   C = [-5, 0, 0, 0, 5]
+       d3 = 1  descendant [1, 0, 30, 0, 25]
+  E  : 4 of 4 candidates everywhere locally soluble
+
+--- E' : 8 candidates for d1 ---
+  [ELS] d1 = 1   C = [1, 0, 0, 0, 100]
+  [ELS] d1 = 5   C = [5, 0, 0, 0, 20]
+       d3 = 1  descendant [-1, -8, 6, -12, 4]
+  E' : 2 of 8 candidates everywhere locally soluble
+
+  Selmer: #S^(phi)(E'/Q) = 4, #S^(phi')(E/Q) = 2
+
+Using isogeny number 2 with x-torsion 5 on the minimal model
+
+--- E  : 8 candidates for d1 ---
+  [ELS] d1 = 1   C = [1, 0, 15, 0, 50]
+       trivial class, no descent needed
+  [ELS] d1 = 2   C = [2, 0, 15, 0, 25]
+       d3 = 1  descendant [1, 0, -30, 0, 25]
+  [ELS] d1 = 5   C = [5, 0, 15, 0, 10]
+       no ELS descendant => C(Q) is empty
+  [ELS] d1 = 10   C = [10, 0, 15, 0, 5]
+       no ELS descendant => C(Q) is empty
+  [ELS] d1 = -1   C = [-1, 0, 15, 0, -50]
+       no ELS descendant => C(Q) is empty
+  [ELS] d1 = -2   C = [-2, 0, 15, 0, -25]
+       d3 = 1  descendant [9, 8, 6, -8, 9]
+  [ELS] d1 = -5   C = [-5, 0, 15, 0, -10]
+       no ELS descendant => C(Q) is empty
+  [ELS] d1 = -10   C = [-10, 0, 15, 0, -5]
+       no ELS descendant => C(Q) is empty
+  E  : 8 of 8 candidates everywhere locally soluble
+
+--- E' : 4 candidates for d1 ---
+  [ELS] d1 = 1   C = [1, 0, -30, 0, 25]
+  E' : 1 of 4 candidates everywhere locally soluble
+
+  Selmer: #S^(phi)(E'/Q) = 8, #S^(phi')(E/Q) = 1
+
+Using isogeny number 3 with x-torsion -5 on the minimal model
+
+--- E  : 8 candidates for d1 ---
+  [ELS] d1 = 1   C = [1, 0, -15, 0, 50]
+       trivial class, no descent needed
+  [ELS] d1 = 2   C = [2, 0, -15, 0, 25]
+       no ELS descendant => C(Q) is empty
+  [ELS] d1 = 5   C = [5, 0, -15, 0, 10]
+       d3 = 1  descendant [1, 3, -6, -3, 1]
+  [ELS] d1 = 10   C = [10, 0, -15, 0, 5]
+       no ELS descendant => C(Q) is empty
+  E  : 4 of 8 candidates everywhere locally soluble
+
+--- E' : 4 candidates for d1 ---
+  [ELS] d1 = 1   C = [1, 0, 30, 0, 25]
+  [ELS] d1 = -1   C = [-1, 0, 30, 0, -25]
+       conic unsolved, keeping the first descent cover
+  E' : 2 of 4 candidates everywhere locally soluble
+
+  Selmer: #S^(phi)(E'/Q) = 4, #S^(phi')(E/Q) = 2
+
+================= 2-coverings (8) =================
+each is  y^2 = a x^4 + b x^3 + c x^2 + d x + e  given as [a, b, c, d, e]
+
+   1  E   2nd     d1 = 5  d3 = 1  [-1, 0, 30, 0, -25]
+   2  E   2nd     d1 = -1  d3 = 10  [5, 0, 0, 0, 20]
+   3  E   2nd     d1 = -5  d3 = 1  [1, 0, 30, 0, 25]
+   4  E'  1st     d1 = 1  d3 = 1  [1, 0, 0, 0, 100]
+   5  E'  2nd     d1 = 5  d3 = 1  [-1, -8, 6, -12, 4]
+   6  E   2nd     d1 = 2  d3 = 1  [1, 0, -30, 0, 25]
+   7  E   2nd     d1 = -2  d3 = 1  [9, 8, 6, -8, 9]
+   8  E   2nd     d1 = 5  d3 = 1  [1, 3, -6, -3, 1]
+
+Magma:
+  covers := [
+    [-1, 0, 30, 0, -25],
+    [5, 0, 0, 0, 20],
+    [1, 0, 30, 0, 25],
+    [1, 0, 0, 0, 100],
+    [-1, -8, 6, -12, 4],
+    [1, 0, -30, 0, 25],
+    [9, 8, 6, -8, 9],
+    [1, 3, -6, -3, 1]
+  ];
+
+Searching for points on the 8 coverings ...
+Found solution for U = 1, V = 1, y = 2 on -1u^4 + 0u^3v + 30u^2v^2 + 0uv^3 + -25v^4
+Output coord on Em 45
+Output coord on E 45
+(45 : -300 : 1)

@@ -61,6 +61,8 @@ def solveIsotropicReduced3(a, b, c):
     if (a == 1 and c == -1) or (a == -1 and c == 1): return (1, 0, 1)
     if (b == 1 and c == -1) or (b == -1 and c == 1): return (0, 1, 1)
 
+    if (a > 0) == (b > 0) == (c > 0): return None
+
     g, u, v = xgcd(b, c)
     assert g == 1, "form not reduced"
     gp, ap, bp = xgcd(a, b*c)
@@ -73,6 +75,10 @@ def solveIsotropicReduced3(a, b, c):
     if k1 == None or k2 == None or k3 == None:
         return None
     
+    # replacement just in case
+    #F = DiagonalQuadraticForm(QQ, [a, b, c])
+    #return F.solve()
+
     alpha = (bp*c*k1)   % abs(a)
     beta  = (u*ap*b*k3) % abs(b*c)
     gamma = (v*ap*c*k2) % abs(b*c)
@@ -84,15 +90,14 @@ def solveIsotropicReduced3(a, b, c):
     vs = [v1, v2, v3]
     f = lambda x, y, z: (a*x**2 + b*y**2 + c*z**2)
 
-    def e(x, y, z):
-        jj = f(x, y, z)
-        dd = a*b*c
+    abc4 = (a*b*c) % 4
 
-        return (QQ(jj) / QQ(dd)) % 2 
+    def e(x, y, z):
+        return (((f(x % 4, y % 4, z % 4) % 4) >> (((abc4) & 1) ^ 1)) & 1)
     
-    #assert e(b*c, 0, 0) == (b*c) % 2
-    #assert e(0, a*c, 0) == (a*c) % 2
-    #assert e(0, 0, a*b) == (a*b) % 2
+    assert e(b*c, 0, 0) == (b*c) % 2
+    assert e(0, a*c, 0) == (a*c) % 2
+    assert e(0, 0, a*b) == (a*b) % 2
 
     vi = None
     i = None
@@ -103,11 +108,10 @@ def solveIsotropicReduced3(a, b, c):
             break
     assert vi != None
     
-    w = [2*vi if i == j else (vj - vi if e(*vj) == 1 else vj) for j, vj in enumerate(vs)]
+    w = [2*vj if i == j else (vj - vi if e(*vj) == 1 else vj) for j, vj in enumerate(vs)]
     
     A, B, C = RR(abs(a)), RR(abs(b)), RR(abs(c))
-    prec = 1 # kinda random ngl
-    # Create the transformation matrix T
+    prec = 1
     T = diagonal_matrix(ZZ, [int(RR(prec) * sqrt(A)), int(RR(prec) * sqrt(B)), int(RR(prec) * sqrt(C))])
     red = (matrix(ZZ, w) * T).LLL() / T
     
@@ -143,21 +147,143 @@ class iso3iter:
     
     def b1b2b3(self):
         return self.b1, self.b2, self.b3
-    
+
+def iterSquareDiscSemiDiag(u, v, disc, d1, c, d2):
+    assert ZZ(disc).is_square()
+    de = ZZ(disc).sqrt()
+
+    a1 = gcd(d1, (de + c) // 2)
+    a2 = d1 // a1
+
+    Q1 = a1*(de - c) / (2*d1) * u**2 + (de + c) / (2*a1) * v**2
+    Q2 = de * u*v
+    Q3 = a1 * u**2 - a2 * v**2
+
+    assert Q2**2 == d1*Q1**2 + c*Q1*Q3 + d2*Q3**2
+
+    return Q1, Q2, Q3
+
+def iterNormalSemiDiag(u, v, x0, y0, z0, delta, d1, c, d2):
+    g, s, t = xgcd(x0, z0)
+    assert y0 != 0 and g == 1
+    e = (t*(2*d1*x0 + c*z0) - s*(2*d2*z0 + c*x0)) % (4*y0**2)
+
+    Q1 = x0*u**2 + ((x0*c + 2*z0*d2 + x0*e)/y0)*u*v  + ((e*( 2*(2*z0*d2 + x0*c) + x0*e) + x0*delta)/(4*y0**2))*v**2
+    Q2 = y0*u**2 + e*u*v + ((e**2 - delta)/(4*y0))*v**2
+    Q3 = z0*u**2 + ((-2*x0*d1 - z0*c + z0*e)/y0)*u*v + ((e*(-2*(2*x0*d1 + z0*c) + z0*e) + z0*delta)/(4*y0**2))*v**2
+
+    assert Q2**2 == d1*Q1**2 + c*Q1*Q3 + d2*Q3**2
+    return Q1, Q2, Q3
+
+def iterSemiDiag(u, v, x0, y0, z0, delta, d1, c, d2):
+    if y0 == 0: return iterSquareDiscSemiDiag(u, v, delta, d1, c, d2)
+    return iterNormalSemiDiag(u, v, x0, y0, z0, delta, d1, c, d2)
+
+def checkFullSolveSemiDiag(d1, c, d2):
+    delta = c**2 - 4*d1*d2
+    if ZZ(delta).is_square():
+        return True
+    A, B, C = semiToDiag(d1, c, d2)
+    (na, nb, nc), _ = reduceIsotropic3(A, B, C)
+    s0 = solveIsotropicReduced3(na, nb, nc)
+    return s0 != None
+
+def fullSolveSemiDiag(u, v, d1, c, d2):
+    delta = c**2 - 4*d1*d2
+    if ZZ(delta).is_square():
+        return iterSquareDiscSemiDiag(u, v, delta, d1, c, d2)
+    A, B, C = semiToDiag(d1, c, d2)
+    (na, nb, nc), (t1, t2, t3) = reduceIsotropic3(A, B, C)
+    s0 = solveIsotropicReduced3(na, nb, nc)
+    if s0 == None:
+        return None
+    x0, y0, z0 = s0
+    x0, y0, z0 = x0*t1, y0*t2, z0*t3
+    assert A*x0**2 + B*y0**2 + C*z0**2 == 0
+    x0, y0, z0 = diagSolToSemiSol(x0, y0, z0, d1, c)
+
+    assert y0**2 == d1*x0**2 + c*x0*z0 + d2*z0**2
+    return iterSemiDiag(u, v, x0, y0, z0, delta, d1, c, d2)
+
+def semiToDiag(d1, c, d2):
+    # from equation of the form y**2 = d1 x**2 + c xz + d2 z**2
+    # to equation x'**2 + (4d1d2 - c**2)z**2 - 4d1 y**2 with x' = 2a x + b z
+    return 1, -4*d1, 4*d1*d2 - c**2
+
+def diagSolToSemiSol(x, y, z, d1, c):
+    S = (x - c*z, 2*y*d1 , 2*z*d1)
+    g = gcd(S)
+    return (S[0] // g, S[1] // g, S[2] // g)
+
 if __name__ == "__main__":
-    nb_test = 10
+    nb_test = 1000
 
-    """
-    a, b, c = -2543, -150934, 79
-    (ap, bp, cp), tr = reduceIsotropic3(a, b, c)
-    print(factor(a), ",", factor(b), ",", factor(c))
-    print(factor(ap), ",", factor(bp), ",", factor(cp))
-    print(tr)
+    # test semi-diagonal form
+    length = 10
+    nb = 0
+    while nb < nb_test:
+        d1, c, d2 = randrange(-2**length, 2**length), randrange(-2**length, 2**length), randrange(-2**length, 2**length)
+        if (d1 == 0 or c == 0 or d2 == 0): continue
 
-    S = solveIsotropicReduced3(ap, bp, cp)
-    print("solution =", S)
-    """
+        ad, bd, cd = semiToDiag(d1, c, d2)
+        (ap, bp, cp), tr = reduceIsotropic3(ad, bd, cd)
+    
+        S = solveIsotropicReduced3(ap, bp, cp)
+        if S == None: 
+            continue
 
+        xd, yd, zd = [tr[i] * S[i] for i in range(3)]
+        x0, y0, z0 = diagSolToSemiSol(xd, yd, zd, d1, c)
+
+        print(x0, y0, z0)
+        if y0**2 == d1*x0**2 + c*x0*z0 + d2*z0**2:
+            print(" : PASS !")
+            nb += 1
+        else:
+            print(" : FAIL ! :", (x0, y0, z0), y0**2, d1*x0**2 + c*x0*z0 + d2*z0**2)
+            exit()
+            
+        g, s, t = xgcd(x0, z0)
+        if g != 1:
+            print(" : FAIL ! : g != 1 for iter")
+            exit()
+        assert s*x0 + t*z0 == 1
+        delta = c**2 - 4*d1*d2
+        Fuv = QQ["u, v"]
+        u, v = Fuv.gens()
+        
+        if y0 == 0:
+            assert ZZ(delta).is_square()
+            de = ZZ(delta).sqrt()    
+            a1 = gcd(d1, (de + c) // 2)
+            a2 = d1 // a1
+
+            Q1 = a1*(de - c) / (2*d1) * u**2 + (de + c) / (2*a1) * v**2
+            Q2 = de * u*v
+            Q3 = a1 * u**2 - a2 * v**2
+            print("Y ======================= 0")
+        else:
+            e = (t*(2*d1*x0 + c*z0) - s*(2*d2*z0 + c*x0)) % (4*y0**2)
+
+            Q1 = x0 * u**2 + (x0*e + c*x0 + 2*d2*z0) / y0 * u*v + (x0*e**2 + x0*delta + 2*c*x0*e + 4*d2*z0*e) / (4*y0**2) * v**2
+            Q2 = y0 * u**2                            + e * u*v                                 + (e**2 - delta) / (4*y0) * v**2
+            Q3 = z0 * u**2 + (z0*e - c*z0 - 2*d1*x0) / y0 * u*v + (z0*e**2 + z0*delta - 2*c*z0*e - 4*d1*x0*e) / (4*y0**2) * v**2
+            
+            Q3 = z0 * u**2 + (z0*e - c*z0 - 2*d1*x0) / y0 * u*v + (e*(z0*e - 2*(c*z0 + 2*d1*x0)) + z0*delta) / (4*y0**2) * v**2
+
+
+        if Q2**2 == d1*Q1**2 + c*Q1*Q3 + d2*Q3**2:
+            print(" : PASS !")
+            nb += 1
+        else:
+            print(" : FAIL ! :", Q2**2 - (d1*Q1**2 + c*Q1*Q3 + d2*Q3**2))
+            exit()
+
+        if y0 == 0: exit()
+            ## iterate
+    exit()
+
+    # test general ternary quadratic
     for length in range(10, 100):
         print(f"length test : {length}")
 
@@ -183,18 +309,3 @@ if __name__ == "__main__":
             else:
                 print(" : FAIL ! :", (x, y, z))
                 exit()
-
-
-"""
-F(alpha, beta) = gamma * delta**2
-let X, Y, Z solution of Y^2 = F(X, Y)
-equivalent to y^2 = f(x / z)
-
-if p^r | (beta * X - alpha * Z)
-then Y^2 = F(X, Z) = lambda**(2n) * F(alpha, beta) = gamma * delta**2 * lambda**(2n) (mod p^r)
-
-N = (|gamma| if gamma = 1 mod 4 else 4|gamma|)
-"""
-
-def quartic_sieving(eq):
-    pass

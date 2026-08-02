@@ -1,0 +1,110 @@
+> > > > > disc = 14400
+E : y^2 = x^3 - 1x^2 - 6x
+Em : y^2 = x^3 - 1x^2 - 6x
+Using isomorphism : [1, 0, 0, 0]
+Descent via 2-isogeny (first descent + optional second descent using ternary quadratic forms)
+
+Using isogeny number 1 with x-torsion 3 on the minimal model
+
+--- E  : 8 candidates for d1 ---
+  [ELS] d1 = 1   C = [1, 0, 8, 0, 15]
+       trivial class, no descent needed
+  [ELS] d1 = 3   C = [3, 0, 8, 0, 5]
+       d3 = 1  descendant [1, 8, -10, -8, 1]
+  [ELS] d1 = 5   C = [5, 0, 8, 0, 3]
+       d3 = 1  descendant [-1, 0, 14, 0, -9]
+  [ELS] d1 = 15   C = [15, 0, 8, 0, 1]
+       d3 = 2  descendant [1, 0, -16, 0, 4]
+  [ELS] d1 = -1   C = [-1, 0, 8, 0, -15]
+       d3 = 2  descendant [1, 0, 8, 16, 20]
+  [ELS] d1 = -3   C = [-3, 0, 8, 0, -5]
+       d3 = 1  descendant [1, 0, 2, 0, 25]
+  [ELS] d1 = -5   C = [-5, 0, 8, 0, -3]
+       d3 = 1  descendant [1, 0, 14, 0, 9]
+  [ELS] d1 = -15   C = [-15, 0, 8, 0, -1]
+       d3 = 2  descendant [1, -1, 2, 1, 1]
+  E  : 8 of 8 candidates everywhere locally soluble
+
+--- E' : 4 candidates for d1 ---
+  [ELS] d1 = 1   C = [1, 0, -16, 0, 4]
+  E' : 1 of 4 candidates everywhere locally soluble
+
+  Selmer: #S^(phi)(E'/Q) = 8, #S^(phi')(E/Q) = 1
+
+Using isogeny number 2 with x-torsion 0 on the minimal model
+
+--- E  : 8 candidates for d1 ---
+  [ELS] d1 = 1   C = [1, 0, -1, 0, -6]
+       trivial class, no descent needed
+  [ELS] d1 = 2   C = [2, 0, -1, 0, -3]
+       no ELS descendant => C(Q) is empty
+  [ELS] d1 = 3   C = [3, 0, -1, 0, -2]
+       no ELS descendant => C(Q) is empty
+  [ELS] d1 = 6   C = [6, 0, -1, 0, -1]
+       no ELS descendant => C(Q) is empty
+  [ELS] d1 = -1   C = [-1, 0, -1, 0, 6]
+       d3 = 5  descendant [1, 4, 14, 4, 13]
+  [ELS] d1 = -2   C = [-2, 0, -1, 0, 3]
+       no ELS descendant => C(Q) is empty
+  [ELS] d1 = -3   C = [-3, 0, -1, 0, 2]
+       no ELS descendant => C(Q) is empty
+  [ELS] d1 = -6   C = [-6, 0, -1, 0, 1]
+       no ELS descendant => C(Q) is empty
+  E  : 8 of 8 candidates everywhere locally soluble
+
+--- E' : 4 candidates for d1 ---
+  [ELS] d1 = 1   C = [1, 0, 2, 0, 25]
+  E' : 1 of 4 candidates everywhere locally soluble
+
+  Selmer: #S^(phi)(E'/Q) = 8, #S^(phi')(E/Q) = 1
+
+Using isogeny number 3 with x-torsion -2 on the minimal model
+
+--- E  : 8 candidates for d1 ---
+  [ELS] d1 = 1   C = [1, 0, -7, 0, 10]
+       trivial class, no descent needed
+  [ELS] d1 = 2   C = [2, 0, -7, 0, 5]
+       no ELS descendant => C(Q) is empty
+  [ELS] d1 = 5   C = [5, 0, -7, 0, 2]
+       no ELS descendant => C(Q) is empty
+  [ELS] d1 = 10   C = [10, 0, -7, 0, 1]
+       no ELS descendant => C(Q) is empty
+  E  : 4 of 8 candidates everywhere locally soluble
+
+--- E' : 4 candidates for d1 ---
+  [ELS] d1 = 1   C = [1, 0, 14, 0, 9]
+  [ELS] d1 = -1   C = [-1, 0, 14, 0, -9]
+       conic unsolved, keeping the first descent cover
+  E' : 2 of 4 candidates everywhere locally soluble
+
+  Selmer: #S^(phi)(E'/Q) = 4, #S^(phi')(E/Q) = 2
+
+================= 2-coverings (8) =================
+each is  y^2 = a x^4 + b x^3 + c x^2 + d x + e  given as [a, b, c, d, e]
+
+   1  E   2nd     d1 = 3  d3 = 1  [1, 8, -10, -8, 1]
+   2  E   2nd     d1 = 5  d3 = 1  [-1, 0, 14, 0, -9]
+   3  E   2nd     d1 = 15  d3 = 2  [1, 0, -16, 0, 4]
+   4  E   2nd     d1 = -1  d3 = 2  [1, 0, 8, 16, 20]
+   5  E   2nd     d1 = -3  d3 = 1  [1, 0, 2, 0, 25]
+   6  E   2nd     d1 = -5  d3 = 1  [1, 0, 14, 0, 9]
+   7  E   2nd     d1 = -15  d3 = 2  [1, -1, 2, 1, 1]
+   8  E   2nd     d1 = -1  d3 = 5  [1, 4, 14, 4, 13]
+
+Magma:
+  covers := [
+    [1, 8, -10, -8, 1],
+    [-1, 0, 14, 0, -9],
+    [1, 0, -16, 0, 4],
+    [1, 0, 8, 16, 20],
+    [1, 0, 2, 0, 25],
+    [1, 0, 14, 0, 9],
+    [1, -1, 2, 1, 1],
+    [1, 4, 14, 4, 13]
+  ];
+
+Searching for points on the 8 coverings ...
+Found solution for U = 2, V = 1, y = 5 on 1u^4 + 8u^3v + -10u^2v^2 + -8uv^3 + 1v^4
+Output coord on Em 6
+Output coord on E 6
+(6 : -12 : 1)

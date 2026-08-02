@@ -1,8 +1,7 @@
 .vscode/
 build/
+build-debug/
 __pycache__/
 ecq
-perf.data
-FlameGraph
-out.perf-folded
-perf.svg
+ecq-debug
+*.pdf

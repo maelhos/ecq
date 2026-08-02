@@ -147,7 +147,7 @@ int sieve_pol(ulong* U, ulong* V, const fmpz* pol, slong len, ulong H, const ulo
             }
             _fmpz_vec_sum(tmp, ev, len);
 
-            if (fmpz_sgn(tmp) <= 0)
+            if (fmpz_sgn(tmp) <= 0 || X == 0) // no torsion
             {
                 continue;
             }

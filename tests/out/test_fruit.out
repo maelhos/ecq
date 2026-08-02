@@ -1,0 +1,50 @@
+> > > > > disc = 2153060
+E : y^2 + 1xy + 1y = x^3 - 234x + 1352
+Em : y^2 + 1xy + 1y = x^3 - 234x + 1352
+Using isomorphism : [1, 0, 0, 0]
+Descent via 2-isogeny (first descent + optional second descent using ternary quadratic forms)
+
+Using isogeny number 1 with x-torsion 36 on the minimal model
+
+--- E  : 8 candidates for d1 ---
+  [ELS] d1 = 1   C = [1, 0, 109, 0, 224]
+       trivial class, no descent needed
+  [ELS] d1 = 14   C = [14, 0, 109, 0, 16]
+       d3 = -5  descendant [1, 26, 115, 26, 1]
+  [ELS] d1 = -1   C = [-1, 0, 109, 0, -224]
+       d3 = -5  descendant [10, -10, -47, 28, 68]
+  [ELS] d1 = -14   C = [-14, 0, 109, 0, -16]
+       d3 = 1  descendant [25, -26, -41, 26, 25]
+  E  : 4 of 8 candidates everywhere locally soluble
+
+--- E' : 8 candidates for d1 ---
+  [ELS] d1 = 1   C = [1, 0, -218, 0, 10985]
+  [ELS] d1 = 65   C = [65, 0, -218, 0, 169]
+       d3 = 2  descendant [4, 0, 109, 0, 56]
+  E' : 2 of 8 candidates everywhere locally soluble
+
+  Selmer: #S^(phi)(E'/Q) = 4, #S^(phi')(E/Q) = 2
+
+================= 2-coverings (5) =================
+each is  y^2 = a x^4 + b x^3 + c x^2 + d x + e  given as [a, b, c, d, e]
+
+   1  E   2nd     d1 = 14  d3 = -5  [1, 26, 115, 26, 1]
+   2  E   2nd     d1 = -1  d3 = -5  [10, -10, -47, 28, 68]
+   3  E   2nd     d1 = -14  d3 = 1  [25, -26, -41, 26, 25]
+   4  E'  1st     d1 = 1  d3 = 1  [1, 0, -218, 0, 10985]
+   5  E'  2nd     d1 = 65  d3 = 2  [4, 0, 109, 0, 56]
+
+Magma:
+  covers := [
+    [1, 26, 115, 26, 1],
+    [10, -10, -47, 28, 68],
+    [25, -26, -41, 26, 25],
+    [1, 0, -218, 0, 10985],
+    [4, 0, 109, 0, 56]
+  ];
+
+Searching for points on the 5 coverings ...
+Found solution for U = 1, V = 1, y = 13 on 1u^4 + 26u^3v + 115u^2v^2 + 26uv^3 + 1v^4
+Output coord on Em 9
+Output coord on E 9
+(9 : -5 : 1)

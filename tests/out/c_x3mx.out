@@ -1,0 +1,84 @@
+> > > > > disc = 64
+E : y^2 = x^3 - 1x
+Em : y^2 = x^3 - 1x
+Using isomorphism : [1, 0, 0, 0]
+Descent via 2-isogeny (first descent + optional second descent using ternary quadratic forms)
+
+Using isogeny number 1 with x-torsion 0 on the minimal model
+
+--- E  : 2 candidates for d1 ---
+  [ELS] d1 = 1   C = [1, 0, 0, 0, -1]
+       trivial class, no descent needed
+  [ELS] d1 = -1   C = [-1, 0, 0, 0, 1]
+       d3 = 1  descendant [2, 0, 0, 0, 2]
+  E  : 2 of 2 candidates everywhere locally soluble
+
+--- E' : 4 candidates for d1 ---
+  [ELS] d1 = 1   C = [1, 0, 0, 0, 4]
+  [ELS] d1 = 2   C = [2, 0, 0, 0, 2]
+       d3 = -1  descendant [1, -4, -6, -12, -7]
+  E' : 2 of 4 candidates everywhere locally soluble
+
+  Selmer: #S^(phi)(E'/Q) = 2, #S^(phi')(E/Q) = 2
+
+Using isogeny number 2 with x-torsion 1 on the minimal model
+
+--- E  : 4 candidates for d1 ---
+  [ELS] d1 = 1   C = [1, 0, 3, 0, 2]
+       trivial class, no descent needed
+  [ELS] d1 = 2   C = [2, 0, 3, 0, 1]
+       d3 = 1  descendant [1, 0, -6, 0, 1]
+  [ELS] d1 = -1   C = [-1, 0, 3, 0, -2]
+       no ELS descendant => C(Q) is empty
+  [ELS] d1 = -2   C = [-2, 0, 3, 0, -1]
+       no ELS descendant => C(Q) is empty
+  E  : 4 of 4 candidates everywhere locally soluble
+
+--- E' : 2 candidates for d1 ---
+  [ELS] d1 = 1   C = [1, 0, -6, 0, 1]
+  E' : 1 of 2 candidates everywhere locally soluble
+
+  Selmer: #S^(phi)(E'/Q) = 4, #S^(phi')(E/Q) = 1
+
+Using isogeny number 3 with x-torsion -1 on the minimal model
+
+--- E  : 4 candidates for d1 ---
+  [ELS] d1 = 1   C = [1, 0, -3, 0, 2]
+       trivial class, no descent needed
+  [ELS] d1 = 2   C = [2, 0, -3, 0, 1]
+       d3 = -1  descendant [1, 0, 6, 0, 1]
+  E  : 2 of 4 candidates everywhere locally soluble
+
+--- E' : 2 candidates for d1 ---
+  [ELS] d1 = 1   C = [1, 0, 6, 0, 1]
+  [ELS] d1 = -1   C = [-1, 0, 6, 0, -1]
+       conic unsolved, keeping the first descent cover
+  E' : 2 of 2 candidates everywhere locally soluble
+
+  Selmer: #S^(phi)(E'/Q) = 2, #S^(phi')(E/Q) = 2
+
+================= 2-coverings (6) =================
+each is  y^2 = a x^4 + b x^3 + c x^2 + d x + e  given as [a, b, c, d, e]
+
+   1  E   2nd     d1 = -1  d3 = 1  [2, 0, 0, 0, 2]
+   2  E'  1st     d1 = 1  d3 = 1  [1, 0, 0, 0, 4]
+   3  E'  2nd     d1 = 2  d3 = -1  [1, -4, -6, -12, -7]
+   4  E   2nd     d1 = 2  d3 = 1  [1, 0, -6, 0, 1]
+   5  E   2nd     d1 = 2  d3 = -1  [1, 0, 6, 0, 1]
+   6  E'  1st     d1 = -1  d3 = 1  [-1, 0, 6, 0, -1]
+
+Magma:
+  covers := [
+    [2, 0, 0, 0, 2],
+    [1, 0, 0, 0, 4],
+    [1, -4, -6, -12, -7],
+    [1, 0, -6, 0, 1],
+    [1, 0, 6, 0, 1],
+    [-1, 0, 6, 0, -1]
+  ];
+
+Searching for points on the 6 coverings ...
+Found solution for U = 1, V = 1, y = 2 on 2u^4 + 0u^3v + 0u^2v^2 + 0uv^3 + 2v^4
+Output coord on Em -1
+Output coord on E -1
+(-1 : 0 : 1)
