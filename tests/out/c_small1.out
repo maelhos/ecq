@@ -1,4 +1,6 @@
-> > > > > disc = 80
+> > > > > 
+Using avx2 implem
+disc = 80
 E : y^2 = x^3 + 1x^2 - 1x
 Em : y^2 = x^3 + 1x^2 - 1x
 Using isomorphism : [1, 0, 0, 0]

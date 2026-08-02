@@ -1,4 +1,6 @@
-> > > > > disc = 64
+> > > > > 
+Using avx2 implem
+disc = 64
 E : y^2 = x^3 - 1x
 Em : y^2 = x^3 - 1x
 Using isomorphism : [1, 0, 0, 0]

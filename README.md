@@ -174,6 +174,32 @@ Measured on a Zen 3 (AVX2, no AVX-512):
 
 and against the old `fmpz` sieve, end to end: `62.9 s -> 1.0 s` on `tests/curves/goal`.
 
+## Hard test curves
+
+The congruent number curves $y^2 = x^3 - n^2x$ have full $2$-torsion and, for $n$ large,
+generators of very large canonical height, so they make good stress tests.
+`python/find_hard_curves.py` scans them, predicting the height from BSD
+($\mathrm{Reg} = L'(E,1)\,|E_{tors}|^2 / (\Omega \prod_p c_p)$ for analytic rank $1$)
+instead of looking for the generator, which is the expensive part being tested.
+
+Verified, with the height of the point `ECQ` actually returns:
+
+| curve | $n$ | $\hat h$ | time |
+| --- | --- | --- | --- |
+| `tests/curves/goal` | 10239 | 87.24 | 1.0 s |
+| `tests/curves/cn_10381` | 10381 | 95.30 | 1.8 s |
+| `tests/curves/harder` | — | 98.59 | 0.8 s |
+| `[0,0,0,-105945849,0]` | 10293 | 99.67 | 164 s |
+| `[0,0,0,-106626276,0]` | 10326 | 103.60 | 42 s |
+| `[0,0,0,-122168809,0]` | 11053 | 106.17 (predicted) | not found in 100 s |
+
+The running time is not a function of the canonical height alone: it depends on the naive
+height of the point on the particular covering the sieve happens to be handed, which is why
+10326 is found much faster than 10293 despite being higher.
+
+Predicted heights in the range $10000 < n < 12000$ alone go past $1100$, so there is plenty
+of room left to stress the search.
+
 ## Installation
 
 For now, `ECQ` is dependent on [`FLINT`](https://github.com/flintlib/flint).
@@ -186,8 +212,9 @@ Compared against `mwrank` on the same curves, second descent enabled on both sid
 | --- | --- | --- |
 | `[0, -357, 0, -55091113, 35631141645]` | 0.05 s | 0.12 s |
 | `[0, 67776, 0, 524264742, 7716543824]` | 0.11 s | 0.13 s |
-| `[0, 311287, 0, -2620112859, -67486029]` | 0.840s | ~10h |
-| `[0, 0, 0, -104837121, 0]` | 0.968s | $\infty$ |
+| `[0, 311287, 0, -2620112859, -67486029]` | 0.840s | 4.01s |
+| `[0, 0, 0, -104837121, 0]` | 0.968s | ~10h |
+| `[0, 0, 0, -106626276, 0]` | 47.00s | - |
 On the first of these, $y^2 = (x - 7265)(x - 649)(x + 7557)$, the point found is
 
 $$\left(\frac{140126657820200215}{268640327843001}, -\frac{366795884453758471044805220}{4403082402069074983251}\right)$$

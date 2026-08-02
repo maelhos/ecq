@@ -1,0 +1,110 @@
+> > > > > 
+Using avx2 implem
+disc = 80096791625734323767569984
+E : y^2 = x^3 - 107765161x
+Em : y^2 = x^3 - 107765161x
+Using isomorphism : [1, 0, 0, 0]
+Descent via 2-isogeny (first descent + optional second descent using ternary quadratic forms)
+
+Using isogeny number 1 with x-torsion 0 on the minimal model
+
+--- E  : 8 candidates for d1 ---
+  [ELS] d1 = 1   C = [1, 0, 0, 0, -107765161]
+       trivial class, no descent needed
+  [ELS] d1 = 7   C = [7, 0, 0, 0, -15395023]
+       d3 = 2966  descendant [4449, -11864, -71184, -23728, 17796]
+  [ELS] d1 = 1483   C = [1483, 0, 0, 0, -72667]
+       no ELS descendant => C(Q) is empty
+  [ELS] d1 = 10381   C = [10381, 0, 0, 0, -10381]
+       d3 = 10381  descendant [1, 0, -62286, 0, 107765161]
+  [ELS] d1 = -1   C = [-1, 0, 0, 0, 107765161]
+       d3 = 2  descendant [1, 0, 0, 0, 431060644]
+  [ELS] d1 = -7   C = [-7, 0, 0, 0, 15395023]
+       d3 = 14  descendant [1604, 26, 14397, -9559, 5989]
+  [ELS] d1 = -1483   C = [-1483, 0, 0, 0, 72667]
+       d3 = 7  descendant [7, 0, 62286, 0, 15395023]
+  [ELS] d1 = -10381   C = [-10381, 0, 0, 0, 10381]
+       d3 = 1  descendant [1, 0, 62286, 0, 107765161]
+  E  : 8 of 8 candidates everywhere locally soluble
+
+--- E' : 16 candidates for d1 ---
+  [ELS] d1 = 1   C = [1, 0, 0, 0, 431060644]
+  E' : 1 of 16 candidates everywhere locally soluble
+
+  Selmer: #S^(phi)(E'/Q) = 8, #S^(phi')(E/Q) = 1
+
+Using isogeny number 2 with x-torsion 10381 on the minimal model
+
+--- E  : 16 candidates for d1 ---
+  [ELS] d1 = 1   C = [1, 0, 31143, 0, 215530322]
+       trivial class, no descent needed
+  [ELS] d1 = 2   C = [2, 0, 31143, 0, 107765161]
+       no ELS descendant => C(Q) is empty
+  [ELS] d1 = 7   C = [7, 0, 31143, 0, 30790046]
+       no ELS descendant => C(Q) is empty
+  [ELS] d1 = 14   C = [14, 0, 31143, 0, 15395023]
+       d3 = 7  descendant [1766, 27368, -7848, -63064, -3146]
+  [ELS] d1 = -1483   C = [-1483, 0, 31143, 0, -145334]
+       no ELS descendant => C(Q) is empty
+  [ELS] d1 = -2966   C = [-2966, 0, 31143, 0, -72667]
+       no ELS descendant => C(Q) is empty
+  [ELS] d1 = -10381   C = [-10381, 0, 31143, 0, -20762]
+       no ELS descendant => C(Q) is empty
+  [ELS] d1 = -20762   C = [-20762, 0, 31143, 0, -10381]
+       no ELS descendant => C(Q) is empty
+  E  : 8 of 16 candidates everywhere locally soluble
+
+--- E' : 8 candidates for d1 ---
+  [ELS] d1 = 1   C = [1, 0, -62286, 0, 107765161]
+  E' : 1 of 8 candidates everywhere locally soluble
+
+  Selmer: #S^(phi)(E'/Q) = 8, #S^(phi')(E/Q) = 1
+
+Using isogeny number 3 with x-torsion -10381 on the minimal model
+
+--- E  : 16 candidates for d1 ---
+  [ELS] d1 = 1   C = [1, 0, -31143, 0, 215530322]
+       trivial class, no descent needed
+  [ELS] d1 = 2   C = [2, 0, -31143, 0, 107765161]
+       no ELS descendant => C(Q) is empty
+  [ELS] d1 = 10381   C = [10381, 0, -31143, 0, 20762]
+       d3 = -7  descendant [401, 13, 14397, -19118, 23956]
+  [ELS] d1 = 20762   C = [20762, 0, -31143, 0, 10381]
+       no ELS descendant => C(Q) is empty
+  E  : 4 of 16 candidates everywhere locally soluble
+
+--- E' : 8 candidates for d1 ---
+  [ELS] d1 = 1   C = [1, 0, 62286, 0, 107765161]
+  [ELS] d1 = 7   C = [7, 0, 62286, 0, 15395023]
+       d3 = 7  descendant [7764, -86504, 189264, 79468, 4897]
+  E' : 2 of 8 candidates everywhere locally soluble
+
+  Selmer: #S^(phi)(E'/Q) = 4, #S^(phi')(E/Q) = 2
+
+================= 2-coverings (9) =================
+each is  y^2 = a x^4 + b x^3 + c x^2 + d x + e  given as [a, b, c, d, e]
+
+   1  E   2nd     d1 = 7  d3 = 2966  [4449, -11864, -71184, -23728, 17796]
+   2  E   2nd     d1 = 10381  d3 = 10381  [1, 0, -62286, 0, 107765161]
+   3  E   2nd     d1 = -1  d3 = 2  [1, 0, 0, 0, 431060644]
+   4  E   2nd     d1 = -7  d3 = 14  [1604, 26, 14397, -9559, 5989]
+   5  E   2nd     d1 = -1483  d3 = 7  [7, 0, 62286, 0, 15395023]
+   6  E   2nd     d1 = -10381  d3 = 1  [1, 0, 62286, 0, 107765161]
+   7  E   2nd     d1 = 14  d3 = 7  [1766, 27368, -7848, -63064, -3146]
+   8  E   2nd     d1 = 10381  d3 = -7  [401, 13, 14397, -19118, 23956]
+   9  E'  2nd     d1 = 7  d3 = 7  [7764, -86504, 189264, 79468, 4897]
+
+Magma:
+  covers := [
+    [4449, -11864, -71184, -23728, 17796],
+    [1, 0, -62286, 0, 107765161],
+    [1, 0, 0, 0, 431060644],
+    [1604, 26, 14397, -9559, 5989],
+    [7, 0, 62286, 0, 15395023],
+    [1, 0, 62286, 0, 107765161],
+    [1766, 27368, -7848, -63064, -3146],
+    [401, 13, 14397, -19118, 23956],
+    [7764, -86504, 189264, 79468, 4897]
+  ];
+
+Searching for points on the 9 coverings ...

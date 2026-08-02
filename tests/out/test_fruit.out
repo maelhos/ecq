@@ -1,4 +1,6 @@
-> > > > > disc = 2153060
+> > > > > 
+Using avx2 implem
+disc = 2153060
 E : y^2 + 1xy + 1y = x^3 - 234x + 1352
 Em : y^2 + 1xy + 1y = x^3 - 234x + 1352
 Using isomorphism : [1, 0, 0, 0]
